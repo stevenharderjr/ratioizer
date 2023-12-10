@@ -1,17 +1,38 @@
-# Ratioizer
+# create-svelte
 
-### PWA for defining and working with ratios
+Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
-I wanted an easy way to preserve ratios between values while changing any of the values involved. Specifically, a way to achieve a consistent coffee flavor when I am short on half & half. This involves setting up an ideal ratio between cream, sugar and coffee, then preserving that ratio when the amount of any of those ingredients fluctuates.
+## Creating a project
 
-## Example
+If you're seeing this, you've probably already done this step. Congrats!
 
-My nominal cup of coffee comprises 21g sugar, 197ml coffee, and 169ml half & half, but I want the coffee to taste the same when I have less than 169ml of half & half.
+```bash
+# create a new project in the current directory
+npm create svelte@latest
 
-This can be achieved by converting the nominal amounts of coffee and sugar to ratios based on the nominal amount of half & half (197/169 and 21/169), then multiplying those ratios by the available amount of half & half (let's say 100ml).
+# create a new project in my-app
+npm create svelte@latest my-app
+```
 
-197 / 169 \* 100 = ~117ml coffee
+## Developing
 
-21 / 169 \* 100 = ~12g sugar
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-It's a straightforward exercise with a calculator, but it's still a lot of data entry. Instead, I would like to edit one of the ideal values and see the others adjust accordingly.
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
