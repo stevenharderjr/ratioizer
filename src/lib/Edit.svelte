@@ -22,7 +22,7 @@
 </script>
 
 <div class="ratio">
-  <input name="title" type="text" value={detail.label} on:change={handleRename} />
+  <input class="title" type="text" value={detail.label} on:change={handleRename} />
   <div class="factors">
     {#each detail.factors as factor, i}
       <Factor {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} detail={factor} on:update={handleUpdate} />
@@ -42,9 +42,10 @@
     background: #fff;
     max-width: 100vw;
   }
-  input {
+  .title {
     font-size: 1.25rem;
     font-weight: 500;
+    border: none;
     padding: 4px 8px;
   }
   .factors {

@@ -1,16 +1,25 @@
 <script>
-  export let title = 'New Factor';
-  export let value = 0;
-  export let unit = 'g';
+  import { createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
+  export let detail = {};
+  export let parentName = '';
+  export let parentLabel = '';
   export let id = '';
-  let placeholder = value;
+  export let index = -1;
+  export let edit = false;
+
+  function handleUpdate({ currentTarget: { value: inputValue, id } }) {
+    dispatch('update', { ...detail, [id]: inputValue, parentName });
+  }
 </script>
 
 <div class="factor">
-  <input {id} class="title input" type="text" value={title} />
+  <input name="label" class="title input" type="text" value={detail.label} on:change={handleUpdate} />
   <div class="components">
-    <input id={id + ' value'} class="numeric input" type="text" {value} />
-    <input id={id + ' unit'} class="unit input" type="text" value={unit} />
+    <input name="value" class="numeric input" type="text" value={detail.value} on:change={handleUpdate
+}/>
+    <input name="unit" class="unit input" type="text" value={detail.unit} on:change={handleUpdate
+} />
   </div>
 </div>
 
@@ -18,28 +27,35 @@
   .factor {
     display: flex;
     flex-direction: colummn;
-    max-width: 100%;
     align-items: flex-start;
     padding-left: 8px;
+    flex-wrap: wrap;
+    font-size: 1rem;
   }
 
   .components {
     display: flex;
     flex-direction: row;
-    width: 16rem;
+    max-width: 16rem;
+    font-size: 1rem;
   }
 
   .title {
-    font-size: 1rem;
-    max-width: 16rem;
+    min-width: 50%;
+    max-width: 8rem;
   }
 
   .input {
-    flex: 0;
-    border: none;
     color: black;
-    padding: 4px 8px;
+    padding: 2px 6px;
     margin: 2px;
+    border: 2px solid transparent;
+    border-radius: 4px;
+  }
+
+  .input:focus {
+    outline: none !important;
+    border: 2px solid #ccc;
   }
 
   .numeric {

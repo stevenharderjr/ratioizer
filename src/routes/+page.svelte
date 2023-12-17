@@ -1,52 +1,43 @@
 <script>
+  import { onMount } from 'svelte';
+  import Dashboard from '$lib/Dashboard.svelte';
   import Ratio from '$lib/Ratio.svelte';
+  import Edit from '$lib/Edit.svelte';
+  import { ratios } from '../stores';
+  import Toast from '../toast';
 
-  const defaultRatio =     {
-      id: 0,
-      title: 'Cup of Coffee',
-      factors: [
-        {
-          id: 0,
-          title: 'Coffee',
-          value: 200,
-          unit: 'g'
-        },
-        {
-          id: 1,
-          title: 'Half & Half',
-          value: 150,
-          unit: 'g'
-        },
-        {
-          id: 2,
-          title: 'Sugar',
-          value: 20,
-          unit: 'g'
-        }
-      ]
-    };
+  let using = '';
+  let editing = '';
 
-  let ratios = [];
-
-  for (let i = 0; i < 20; i++) {
-    ratios[i] = {
-      ...defaultRatio,
-      id: i
-    }
+  function useRatio({ detail: name }) {
+    using = name;
   }
+
+  function updateRatio({ detail }) {
+    console.log(detail);
+  }
+
+  function editRatio({ detail: name }) {
+    editing = name;
+  }
+
+  function cancel() {
+    using = '';
+    editing = '';
+  }
+
+  function deleteRatio({ detail: name }) {
+    delete $ratios[name];
+  }
+
+  // onMount(() => Toast.add({ message: 'Hello World!', type: 'error', title: 'Error Example' }));
 
 </script>
 
-<div class="ratios">
-  {#each ratios as ratio}
-    <Ratio id={ratio.id} title={ratio.title} factors={ratio.factors} />
-  {/each}
-</div>
-
-<style>
-  .ratios {
-    display: flex;
-    flex-direction: column;
-    height: fit-content;
-  }
-</style>
+{#if !using}
+  <Dashboard on:select={useRatio} />
+{:else if !editing}
+  <Ratio detail={$ratios[editing]} on:edit={editRatio} on:delete={deleteRatio} on:cancel={cancel} />
+{:else}
+  <Edit detail={$ratios[editing]} on:update={updateRatio} />
+{/if}

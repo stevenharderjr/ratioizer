@@ -13,6 +13,24 @@ input {
 	font-weight: 300;
 }
 
+input {
+	color: black;
+	padding: 2px 6px;
+	margin: 2px;
+	border: 2px solid transparent;
+	border-radius: 4px;
+}
+
+input:focus {
+	outline: none !important;
+	border: 2px solid #ccc;
+}
+
 .debug {
 	background: #f006;
+}
+
+::selection {
+	color: #fff;
+	background: #666;
 }

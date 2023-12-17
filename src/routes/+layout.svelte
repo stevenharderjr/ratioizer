@@ -1,10 +1,12 @@
 <script>
   import Header from '$lib/Header.svelte';
+  import Toast from '$lib/Toast.svelte';
+  import { toasts, blur } from '../stores'
   import './styles.css';
 </script>
 
 <div class="container">
-  <div class="contents">
+  <div class="content">
     <slot />
   </div>
 
@@ -14,9 +16,25 @@
   <footer class="footer">
     <p>Copyright © 2023</p>
   </footer>
+  {#if $blur}
+    <div class="blur" />
+  {/if}
+  {#if toasts}
+    <Toast toasts={$toasts} />
+  {/if}
 </div>
 
 <style>
+  .blur {
+    backdrop-filter: blur(4px);
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
   .container {
     height: 100%;
     width: 100%;
@@ -32,20 +50,20 @@
     height: 0.5rem;
     background-image: linear-gradient(#0006, #0000);
   }
-  .contents {
+  .content {
     position: relative;
     height: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     padding-top: 0.5rem;
-    overflow: scroll;
-    /* overflow-x: hidden; */
+    overflow-y: scroll;
+    overflow-x: hidden;
     /* padding-top: 2.5rem;
     padding-bottom: 2rem; */
-    padding: 2.5rem 1rem 2rem 1rem;
+    padding: 3rem 0.75rem 6rem 0.75rem;
     width: 100%;
-    align-items: center;
+    justify-content: center;
   }
   .footer {
     position: absolute;
