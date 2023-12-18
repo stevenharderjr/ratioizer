@@ -29,6 +29,25 @@ export const ratios = writable({
 	}
 });
 
+export const newRatio = {
+	'new ratio': {
+		label: 'New Ratio',
+		factors: [
+			{
+				id: 0,
+				name: 'new factor',
+				label: 'New Factor',
+				value: '',
+				unit: 'g'
+			}
+		]
+	}
+};
+
 export const toasts = writable([]);
 
 export const blur = writable(false);
+
+// export const edit = writable(false);
+
+// export const use = writable(false);

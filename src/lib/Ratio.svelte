@@ -1,6 +1,8 @@
 <script>
   import Factor from '$lib/Factor.svelte';
   import { createEventDispatcher } from 'svelte';
+  // import '$static/lock.svg';
+  // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
 
   export let id = '';
@@ -8,6 +10,9 @@
   export let name = '';
   export let detail = {};
   export let edit = false;
+  export let lock = true;
+  let dirty = false;
+  $: image = lock ? 'lock.svg' : 'unlock.svg';
 
   function handleRename(e) {
     const { value } = e.currentTarget;
@@ -19,13 +24,29 @@
     const rename = label.toLowerCase();
     console.log({ parentName, name: rename !== name ? rename : name, label, value, unit });
   }
+
+  function toggleLock() {
+    console.log('toggle edit lock')
+    edit = !edit;
+  }
+
+  function handleSelection() {
+    if (edit) return;
+    // console.log('selection:', detail)
+    dispatch('selection', { ...detail, name })
+  }
 </script>
 
-<div class="ratio">
-  <input name="title" type="text" value={detail.label} on:change={handleRename} />
+<div class="floating ratio" on:click={handleSelection}>
+  <div class="label-bar">
+    <input name="title" type="text" value={detail.label} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <button>
+      <img src={edit ? 'unlock.svg' : 'lock.svg'} on:click|stopPropagation={toggleLock} />
+    </button>
+  </div>
   <div class="factors">
     {#each detail.factors as factor, i}
-      <Factor {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} detail={factor} on:update={handleUpdate} />
+      <Factor {edit} {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} detail={factor} on:update={handleUpdate} />
     {/each}
   </div>
 </div>
@@ -34,23 +55,52 @@
   .ratio {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
+    align-items: center;
     padding: 4px;
     border-radius: 8px;
     margin-bottom: 1rem;
-    box-shadow: 0 8px 8px 0 #0003;
     background: #fff;
-    max-width: 100vw;
+    width: 100%;
   }
   input {
     font-size: 1.25rem;
     font-weight: 500;
     padding: 4px 8px;
+    flex: 1;
+    max-width: 12rem;
+  }
+  img {
+    flex: 0;
+    height: 3.15rem;
+    width: 3rem;
+    top: 2.25rem;
+    display: flex;
+    justify-self: center;
+    align-self: center;
+    padding: 0.75rem;
+    opacity: 0.5;
+    border-radius: 6px;
+    /* margin: 0.5rem 0.5rem 0 0; */
+  }
+  button {
+    display: flex;
+    height: 100%;
+    border: none;
+    background: transparent;
+    pointer-events: auto;
   }
   .factors {
     padding: 8px 0;
   }
   .disabled {
     pointer-events: none;
+  }
+  .label-bar {
+    display: flex;
+    flex-direction: row;
+  }
+  .hidden {
+    display: none;
   }
 </style>

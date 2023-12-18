@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Dashboard from '$lib/Dashboard.svelte';
-  import Ratio from '$lib/Ratio.svelte';
+  import Use from '$lib/Use.svelte';
   import Edit from '$lib/Edit.svelte';
   import { ratios } from '../stores';
   import Toast from '../toast';
@@ -9,8 +9,9 @@
   let using = '';
   let editing = '';
 
-  function useRatio({ detail: name }) {
-    using = name;
+  function useRatio({ detail }) {
+    console.log('selection:', detail);
+    using = detail.name;
   }
 
   function updateRatio({ detail }) {
@@ -35,9 +36,9 @@
 </script>
 
 {#if !using}
-  <Dashboard on:select={useRatio} />
+  <Dashboard on:selection={useRatio} />
 {:else if !editing}
-  <Ratio detail={$ratios[editing]} on:edit={editRatio} on:delete={deleteRatio} on:cancel={cancel} />
+  <Use ratio={$ratios[using]} on:close={cancel} />
 {:else}
-  <Edit detail={$ratios[editing]} on:update={updateRatio} />
+  <Edit detail={$ratios[editing]} on:update={updateRatio} on:cancel={cancel} />
 {/if}

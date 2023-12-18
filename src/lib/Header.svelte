@@ -1,5 +1,5 @@
 <div class="header-content">
-  <h1>Ratioizer</h1>
+  <p>Ratioizer</p>
 </div>
 
 <style>
@@ -9,8 +9,13 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 2rem;
-    padding: 2px 5px;
+    height: 1.25rem;
+    padding: 3px 5px;
     background: #fff;
+  }
+  p {
+    text-transform: uppercase;
+    font-weight: 510;
+    font-size: small;
   }
 </style>

@@ -14,12 +14,12 @@
 </script>
 
 <div class="factor">
-  <input name="label" class="title input" type="text" value={detail.label} on:change={handleUpdate} />
+  <input name="label" class="title input" type="text" value={detail.label} on:change={handleUpdate} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
   <div class="components">
     <input name="value" class="numeric input" type="text" value={detail.value} on:change={handleUpdate
-}/>
+} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
     <input name="unit" class="unit input" type="text" value={detail.unit} on:change={handleUpdate
-} />
+} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
   </div>
 </div>
 
@@ -43,19 +43,6 @@
   .title {
     min-width: 50%;
     max-width: 8rem;
-  }
-
-  .input {
-    color: black;
-    padding: 2px 6px;
-    margin: 2px;
-    border: 2px solid transparent;
-    border-radius: 4px;
-  }
-
-  .input:focus {
-    outline: none !important;
-    border: 2px solid #ccc;
   }
 
   .numeric {

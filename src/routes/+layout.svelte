@@ -45,7 +45,7 @@
   .header-shadow {
     position: absolute;
     left: 0;
-    top: 2rem;
+    top: 1.25rem;
     right: 0;
     height: 0.5rem;
     background-image: linear-gradient(#0006, #0000);
@@ -61,7 +61,8 @@
     overflow-x: hidden;
     /* padding-top: 2.5rem;
     padding-bottom: 2rem; */
-    padding: 3rem 0.75rem 6rem 0.75rem;
+    padding: 2.40rem 0.75rem 6rem 0.75rem;
+    /* padding-top: calc(1.15rem + var(--header-height)); */
     width: 100%;
     justify-content: center;
   }
