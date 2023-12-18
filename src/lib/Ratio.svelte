@@ -1,6 +1,7 @@
 <script>
   import Factor from '$lib/Factor.svelte';
   import { createEventDispatcher } from 'svelte';
+  import { editing } from '../stores';
   // import '$static/lock.svg';
   // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
@@ -9,7 +10,7 @@
   export let index = -1;
   export let name = '';
   export let detail = {};
-  export let edit = false;
+  $: edit = $editing === name;
   export let lock = true;
   let dirty = false;
   $: image = lock ? 'lock.svg' : 'unlock.svg';
@@ -26,8 +27,8 @@
   }
 
   function toggleLock() {
-    console.log('toggle edit lock')
-    edit = !edit;
+    if ($editing === name) $editing = '';
+    else $editing = name;
   }
 
   function handleSelection() {
@@ -39,7 +40,7 @@
 
 <div class="floating ratio" on:click={handleSelection}>
   <div class="label-bar">
-    <input name="title" type="text" value={detail.label} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <input class="title" name="title" type="text" value={detail.label} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
     <button>
       <img src={edit ? 'unlock.svg' : 'lock.svg'} on:click|stopPropagation={toggleLock} />
     </button>
@@ -57,7 +58,7 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    padding: 4px;
+    padding: 0 4px;
     border-radius: 8px;
     margin-bottom: 1rem;
     background: #fff;
@@ -91,7 +92,7 @@
     pointer-events: auto;
   }
   .factors {
-    padding: 8px 0;
+    margin-bottom: 1rem;
   }
   .disabled {
     pointer-events: none;
@@ -99,8 +100,12 @@
   .label-bar {
     display: flex;
     flex-direction: row;
+    align-items: center;
   }
   .hidden {
     display: none;
+  }
+  .title {
+    max-height: 2rem;
   }
 </style>

@@ -58,6 +58,9 @@
     max-width: 96vw;
     background: #fff;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  .title-bar {
+    margin-bottom: 1rem;
   }
 </style>

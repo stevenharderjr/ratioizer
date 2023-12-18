@@ -1,12 +1,13 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Ratio from '$lib/Ratio.svelte';
-  import { ratios, newRatio } from '../stores.ts'
+  import { ratios } from '../stores.ts'
   import Toast from '../toast';
   const dispatch = createEventDispatcher();
 
   function addRatio() {
-    ratios.update(all => [newRatio, ...all]);
+    Toast.add({ blur: false, message: 'Should add a new ratio', duration: 1000, dismissable: false });
+    // ratios.update(all => [newRatio, ...all]);
   }
 
   function handleSelection({ detail }) {
@@ -22,9 +23,7 @@
 </div>
 
 <div class="button-container">
-  <button on:click={() => {
-    Toast.add({ blur: false, message: 'Should add a new ratio', duration: 1000, dismissable: false });
-  }} aria-label="Add new ratio.">
+  <button on:click={addRatio} aria-label="Add new ratio.">
     <svg aria-hidden="true" viewBox="0 0 1 1">
       <path d="M0,0.5 L1,0.5 M0.5,0 L0.5,1" />
     </svg>

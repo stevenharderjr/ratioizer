@@ -26,6 +26,25 @@ export const ratios = writable({
 				unit: 'g'
 			}
 		]
+	},
+	'pot of coffee': {
+		label: 'Pot of Coffee',
+		factors: [
+			{
+				id: 0,
+				name: 'coffee grounds',
+				label: 'Coffee Grounds',
+				value: 36,
+				unit: 'g'
+			},
+			{
+				id: 1,
+				name: 'water',
+				label: 'Water',
+				value: 1140,
+				unit: 'g'
+			}
+		]
 	}
 });
 
@@ -48,6 +67,6 @@ export const toasts = writable([]);
 
 export const blur = writable(false);
 
-// export const edit = writable(false);
+export const editing = writable('');
 
 // export const use = writable(false);
