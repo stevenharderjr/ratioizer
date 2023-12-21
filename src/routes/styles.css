@@ -29,7 +29,7 @@ input:focus {
 }
 
 .debug {
-	background: #f006;
+	background: #f006 !important;
 }
 
 ::selection {

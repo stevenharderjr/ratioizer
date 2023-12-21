@@ -1,5 +1,6 @@
 <script>
   import Factor from '$lib/Factor.svelte';
+  import CloseButton from '$lib/CloseButton.svelte';
   import { createEventDispatcher } from 'svelte';
   import { editing } from '../stores';
   // import '$static/lock.svg';
@@ -26,7 +27,7 @@
     console.log({ parentName, name: rename !== name ? rename : name, label, value, unit });
   }
 
-  function toggleLock() {
+  function toggleEdit() {
     if ($editing === name) $editing = '';
     else $editing = name;
   }
@@ -38,66 +39,85 @@
   }
 </script>
 
-<div class="floating ratio" on:click={handleSelection}>
+<div class="floating ratio" on:click={handleSelection} aria-hidden="true">
   <div class="label-bar">
     <input class="title" name="title" type="text" value={detail.label} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
-    <button>
-      <img src={edit ? 'unlock.svg' : 'lock.svg'} on:click|stopPropagation={toggleLock} />
+    <button class="edit-button" on:click|stopPropagation={toggleEdit}>
+      <img src={edit ? 'unlock.svg' : 'lock.svg'} />
     </button>
   </div>
   <div class="factors">
     {#each detail.factors as factor, i}
-      <Factor {edit} {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} detail={factor} on:update={handleUpdate} />
+      <Factor {edit} {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} factor={factor} on:update={handleUpdate} />
     {/each}
   </div>
+  {#if edit}
+    <div class="button-group">
+      <button class="button-action">
+        CANCEL
+      </button>
+      <button class="button-action">
+        SAVE
+      </button>
+    </div>
+    <!-- <CloseButton on:click={toggleEdit} /> -->
+  {/if}
 </div>
 
 <style>
   .ratio {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    padding: 0 4px;
     border-radius: 8px;
     margin-bottom: 1rem;
     background: #fff;
-    width: 100%;
+    width: 20rem;
+    max-width: 92vw;
+    padding: 0.25rem;
   }
   input {
     font-size: 1.25rem;
     font-weight: 500;
-    padding: 4px 8px;
     flex: 1;
     max-width: 12rem;
   }
+  input:focus {
+    padding: 4px 8px;
+  }
   img {
-    flex: 0;
-    height: 3.15rem;
-    width: 3rem;
-    top: 2.25rem;
+    height: 1.5rem;
+    width: 1.5rem;
     display: flex;
-    justify-self: center;
-    align-self: center;
-    padding: 0.75rem;
     opacity: 0.5;
     border-radius: 6px;
     /* margin: 0.5rem 0.5rem 0 0; */
   }
-  button {
+  .edit-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
     display: flex;
-    height: 100%;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    width: 2rem;
     border: none;
     background: transparent;
     pointer-events: auto;
   }
   .factors {
-    margin-bottom: 1rem;
+    margin: 0 1rem 1rem 0;
+    width: 100%;
   }
   .disabled {
     pointer-events: none;
   }
   .label-bar {
+    position: relative;
+    width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -107,5 +127,27 @@
   }
   .title {
     max-height: 2rem;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: row;
+    align-self: flex-end;
+    gap: 0.5rem;
+    padding: 0 0.5rem 0.5rem;
+    width: 100%;
+  }
+
+  .button-action {
+    padding: 0.5rem 1rem;
+    background: #666;
+    color: #fff;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    flex: 1;
+    font-size: small;
+    font-weight: 300;
   }
 </style>

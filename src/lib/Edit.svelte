@@ -22,10 +22,12 @@
 </script>
 
 <div class="ratio">
-  <input class="title" type="text" value={detail.label} on:change={handleRename} />
+  <div class="title-bar">
+    <input class="title" type="text" value={detail.label} on:change={handleRename} />
+  </div>
   <div class="factors">
     {#each detail.factors as factor, i}
-      <Factor {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} detail={factor} on:update={handleUpdate} />
+      <Factor {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} factor={factor} on:update={handleUpdate} />
     {/each}
   </div>
 </div>
