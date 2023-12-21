@@ -52,12 +52,15 @@
     {/each}
   </div>
   {#if edit}
+    <button class="add-factor">
+      + New Factor
+    </button>
     <div class="button-group">
       <button class="button-action">
         CANCEL
       </button>
       <button class="button-action">
-        SAVE
+        APPLY
       </button>
     </div>
     <!-- <CloseButton on:click={toggleEdit} /> -->
@@ -145,9 +148,22 @@
     font-size: 1rem;
     border: none;
     border-radius: 4px;
+    background: #0000;
     width: 100%;
     flex: 1;
     font-size: small;
     font-weight: 300;
+  }
+
+  .add-factor {
+    position: relative;
+    top: -8px;
+    background: #fff;
+    /* box-shadow: 8px 2px 8px #000; */
+    border: none;
+    border-radius: 6px;
+    min-width: 7rem;
+    height: 1rem;
+    margin-bottom: 1rem;
   }
 </style>

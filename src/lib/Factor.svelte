@@ -87,7 +87,7 @@
   .strikethrough {
     position: absolute;
     width: 85%;
-    border: 0.5px solid black;
+    border: 1.5px solid #0006;
     height: 1px;
     bottom: 0.75rem;
     left: 1rem;
