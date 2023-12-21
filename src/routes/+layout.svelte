@@ -14,7 +14,7 @@
   <Header />
 
   <footer class="footer">
-    <p>Copyright © 2023</p>
+    <p>Copyright © Steven Harder 2023</p>
   </footer>
   {#if $blur}
     <div class="blur" />

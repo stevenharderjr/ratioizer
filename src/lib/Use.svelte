@@ -2,56 +2,96 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import Slider from '$lib/Slider.svelte';
 	import Factor from './Factor.svelte';
+  import Fraction from '$lib/Fraction.svelte';
   const dispatch = createEventDispatcher();
 
   export let ratio = {};
   let factors = [];
   let rangeMultipliers = [0.25, 1.75];
-  let lowFactor = ratio.factors[0];
+  let lowFactor, highFactor, floorName, floorValue, maxName, maxValue;
+  let total = 0;
+  $: totalFactor = { value: total };
   let valueMap = new Map(ratio.factors.map((factor) => {
       const { name, value } = factor;
       factors.push(factor)
-      if (value < lowFactor.value) lowFactor = factor;
+      total += +value;
+      if (!maxValue || value > maxValue) {
+        maxValue = value;
+        maxName = name;
+      }
+      if (!floorValue || value < floorValue) {
+        lowFactor = factor;
+        floorName = name;
+        floorValue = value;
+      }
       return [name, value];
     }));
 
-  function updateValues({ detail: { name, value } }) {
-    const conversionRate = value / valueMap.get(name);
-    factors = factors.map((factor, i) => {
+  function updateValues({ detail: { name, value: inputValue } }) {
+    const conversionRate = inputValue / valueMap.get(name);
+    let min, sum = 0;
+    const refactor = factors.map((factor, i) => {
+      const { name: factorName, value: currentValue } = factor;
       const staticFactor = ratio.factors[i];
-      const updatedValue = Math.round(staticFactor.value * conversionRate);
-      return { ...staticFactor, value: updatedValue };
+      const value = Math.round(staticFactor.value * conversionRate);
+      sum += value;
+      if (factorName === floorName) min = value;
+      if (factorName === maxName) maxValue = value;
+      return { ...staticFactor, value };
     });
+    if (min < 1) return;
+    factors = refactor;
+    total = sum;
   }
 
-
   function half() {
-    let floor;
+    let min, sum = 0;
     const refactor = factors.map((factor, i) => {
-      const value = factors[i].value * 0.5;
-      if (!floor || value < floor) floor = value;
+      const { name, value: currentValue } = factor;
+      const value = currentValue * 0.5;
+      sum += value;
+      if (name === floorName) min = value;
+      if (name === maxName) maxValue = value;
       return { ...factor, value };
     });
-    if (floor < 1) return;
+    // ignore shortcut for lowest common denominator
+    if (min < 1) return;
     factors = refactor;
-    const rangeConversion = floor / lowFactor.value;
-    rangeMultipliers = [(rangeConversion * 0.25).toPrecision(2), (rangeConversion * 1.75).toPrecision(2)];
+    total = sum;
+    const conversion = min / floorValue;
+    rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
   }
 
   function resetValues() {
-    factors = factors.map((factor, i) => ({ ...factor, value: ratio.factors[i].value }));
-    const rangeConversion = lowFactor.value / valueMap.get(lowFactor.name);
-    rangeMultipliers = [0.25, 1.75];  }
-
-  function double() {
-    let floor;
+    let sum = 0;
     factors = factors.map((factor, i) => {
-      const value = Math.round(factors[i].value * 2);
-      if (!floor || value < floor) floor = value;
+      const value = ratio.factors[i].value;
+      sum += value;
       return { ...factor, value };
     });
-    const rangeConversion = floor / lowFactor.value;
-    rangeMultipliers = [(rangeConversion * 0.25).toPrecision(2), (rangeConversion * 1.75).toPrecision(2)];
+    total = sum;
+    rangeMultipliers = [0.25, 1.75];
+  }
+
+  function double() {
+    let min, sum = 0;
+    factors = factors.map((factor, i) => {
+      const { name, value: currentValue } = factor;
+      const value = Math.round(currentValue * 2);
+      sum += value;
+      if (name === floorName) min = value;
+      if (name === maxName) maxValue = value;
+      return { ...factor, value };
+    });
+    total = sum;
+    const conversion = min / floorValue;
+    rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
+  }
+
+  function overrideValues({ detail: { value }}) {
+    const diff = value - total;
+    maxValue += diff;
+    updateValues({ detail: { name: maxName, value: maxValue }})
   }
 
   function close() {
@@ -63,12 +103,8 @@
 <div class="backdrop" on:click|self={close}>
   <div class="floating container">
     <div class="title-bar">
-      <h2>{ratio.label}</h2>
-        <button class="x-button" on:click={close} aria-label="Close modal">
-          <svg aria-hidden="true" viewBox="0 0 2.5 2.5">
-            <path d="M0.5,0.5 L2,2 M0.5,2 L2,0.5" />
-          </svg>
-        </button>
+      <h2>{ratio.label} <span>({Math.round(total)} g)</span></h2>
+      <!-- <Slider factor={totalFactor} multipliers={rangeMultipliers} on:update={overrideValues} /> -->
     </div>
     {#each factors as factor}
       <Slider {factor} multipliers={rangeMultipliers} on:update={updateValues} />
@@ -77,19 +113,26 @@
       <button class="shortcut" on:click={half}>
         ½
       </button>
-      <button class="shortcut" on:click={resetValues}>
-        Reset
+      <button class="shortcut" on:click={resetValues} style="font-size:small;flex:2;">
+        RESET
       </button>
       <button class="shortcut" on:click={double}>
-        x2
+        ×2
       </button>
     </div>
+    <button class="x-button" on:click={close} aria-label="Close modal">
+      <svg aria-hidden="true" viewBox="0 0 2.5 2.5">
+        <path d="M0.5,0.5 L2,2 M0.5,2 L2,0.5" />
+      </svg>
+    </button>
   </div>
 </div>
 
 <style>
   h2 {
-    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
   }
   .backdrop {
     position: absolute;
@@ -104,21 +147,29 @@
     align-items: center;
   }
   .container {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 20rem;
     max-width: 96vw;
     background: #fff;
     border-radius: 8px;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1rem 0.75rem;
   }
   .title-bar {
+    position: relative;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 1rem;
+    flex-direction: column;
+    justify-content: baseline;
+    /* align-items: center; */
+    margin-bottom: 2rem;
+  }
+  span {
+    font-size: 1rem;
+    padding-left: 0.5rem;
   }
   .x-button {
+    position: absolute;
     width: 1.5rem;
     height: 1.5rem;
     background: transparent;
@@ -127,11 +178,11 @@
 		justify-content: center;
 		border: 0;
 		touch-action: manipulation;
-		font-size: 2rem;
     pointer-events: auto;
-    margin-right: -0.25rem;
-    /* margin-top: -0.15rem; */
+    top: 0.5rem;
+    right: 0.5rem;
   }
+
   svg {
 		width: 100%;
 		height: 100%;
@@ -146,7 +197,9 @@
   .shortcuts {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0.25rem 0;
   }
 
   .shortcut {
@@ -154,8 +207,9 @@
     background: #666;
     color: #fff;
     font-size: 1rem;
-    margin: 0 0.5rem;
     border: none;
     border-radius: 4px;
+    width: 100%;
+    flex: 1;
   }
 </style>

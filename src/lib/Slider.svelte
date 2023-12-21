@@ -17,16 +17,18 @@
   }
 </script>
 
-<div class="factor">
-  <span class="label">{factor.label}</span>
-  <div>
-    {#if delta}
-      <span class="delta">({delta > 0 ? '+' : ''}{delta})</span>
+{#if factor.label }
+  <div class="factor">
+    <span class="label">{factor.label}</span>
+    <div>
+      {#if delta}
+        <span class="delta">({delta > 0 ? '+' : ''}{delta})</span>
       {/if}
-    <span class="value">{Math.round(factor.value)} {factor.unit}</span>
-    <!-- <span class="unit">{factor.unit}</span> -->
+      <span class="value">{Math.round(factor.value)} {factor.unit}</span>
+      <!-- <span class="unit">{factor.unit}</span> -->
+    </div>
   </div>
-</div>
+{/if}
 <input class="slider" type="range" {min} {max} value={factor.value} on:input={handleChange} />
 
 <style>
@@ -48,7 +50,7 @@
 
   .delta {
     font-size: small;
-    font-weigth: 300;
+    font-weight: 300;
     color: #999;
   }
 
