@@ -3,6 +3,7 @@
   import CloseButton from '$lib/CloseButton.svelte';
   import { createEventDispatcher } from 'svelte';
   import { editing } from '../stores';
+  import Toast from '../toast';
   // import '$static/lock.svg';
   // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
@@ -12,9 +13,11 @@
   export let name = '';
   export let detail = {};
   $: edit = $editing === name;
-  export let lock = true;
+
+  export let locked = true;
   let dirty = false;
-  $: image = lock ? 'lock.svg' : 'unlock.svg';
+  $: image = locked ? 'lock.svg' : 'unlock.svg';
+  const factors = detail.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
 
   function handleRename(e) {
     const { value } = e.currentTarget;
@@ -28,43 +31,56 @@
   }
 
   function toggleEdit() {
+    locked = true;
     if ($editing === name) $editing = '';
     else $editing = name;
+  }
+
+  function toggleRatioLock() {
+    locked = !locked;
+    Toast.add(`Should ${locked ? 'unlock' : 'lock'} sliders for this ratio.`);
   }
 
   function handleSelection() {
     if (edit) return;
     // console.log('selection:', detail)
-    dispatch('selection', { ...detail, name })
+    dispatch('use', { ...detail, name })
   }
 </script>
 
 <div class="floating ratio" on:click={handleSelection} aria-hidden="true">
   <div class="label-bar">
     <input class="title" name="title" type="text" value={detail.label} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
-    <button class="edit-button" on:click|stopPropagation={toggleEdit}>
-      <img src={edit ? 'unlock.svg' : 'lock.svg'} />
-    </button>
   </div>
   <div class="factors">
-    {#each detail.factors as factor, i}
+    {#each factors as factor, i}
       <Factor {edit} {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} factor={factor} on:update={handleUpdate} />
     {/each}
   </div>
   {#if edit}
-    <button class="add-factor">
+    <button class="edit-action add-factor">
       + New Factor
     </button>
-    <div class="button-group">
-      <button class="button-action">
+    <div class="edit-actions">
+      <button class="edit-action">
         CANCEL
       </button>
-      <button class="button-action">
+      <button class="edit-action">
         APPLY
       </button>
     </div>
     <!-- <CloseButton on:click={toggleEdit} /> -->
   {/if}
+  <div class="options">
+    <button class="edit-button" on:click|stopPropagation={toggleEdit}>
+      <img src={edit ? "cancel.svg" : "edit.svg"} />
+    </button>
+    {#if !edit}
+    <button class="edit-button" on:click|stopPropagation={toggleRatioLock}>
+      <img src={locked ? 'unlock.svg' : 'lock.svg'} />
+    </button>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -99,9 +115,6 @@
     /* margin: 0.5rem 0.5rem 0 0; */
   }
   .edit-button {
-    position: absolute;
-    top: 2px;
-    right: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,10 +122,10 @@
     width: 2rem;
     border: none;
     background: transparent;
-    pointer-events: auto;
   }
   .factors {
     margin: 0 1rem 1rem 0;
+    padding-left: 1rem;
     width: 100%;
   }
   .disabled {
@@ -125,6 +138,16 @@
     flex-direction: row;
     align-items: center;
   }
+  .options {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    top: 8px;
+    right: 3px;
+    width: 42px;
+    pointer-events: auto;
+  }
   .hidden {
     display: none;
   }
@@ -132,16 +155,16 @@
     max-height: 2rem;
   }
 
-  .button-group {
+  .edit-actions {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-self: flex-end;
     gap: 0.5rem;
     padding: 0 0.5rem 0.5rem;
     width: 100%;
   }
 
-  .button-action {
+  .edit-action {
     padding: 0.5rem 1rem;
     background: #666;
     color: #fff;

@@ -7,9 +7,10 @@
 
   export let ratio = {};
   let factors = [];
-  let rangeMultipliers = [0.25, 1.75];
+  let relativeRange = [];
   let lowFactor, highFactor, floorName, floorValue, maxName, maxValue;
   let total = 0;
+  let locked = true;
   $: totalFactor = { value: total };
   let valueMap = new Map(ratio.factors.map((factor) => {
       const { name, value } = factor;
@@ -26,41 +27,33 @@
       }
       return [name, value];
     }));
+  updateRange(floorValue);
 
-  function updateValues({ detail: { name, value: inputValue } }) {
-    const conversionRate = inputValue / valueMap.get(name);
-    let min, sum = 0;
+  function updateRange(floor) {
+    const staticFloor = valueMap.get(floorName);
+    const conversion = floor / staticFloor;
+    relativeRange = [(conversion * 0.125).toPrecision(3), (conversion * 1.875).toPrecision(3)];
+  }
+
+  function updateValues({ name, value: targetValue }) {
+    const conversionRate = targetValue / valueMap.get(name);
+    let min, max, sum = 0;
     const refactor = factors.map((factor, i) => {
       const { name: factorName, value: currentValue } = factor;
       const staticFactor = ratio.factors[i];
       const value = Math.round(staticFactor.value * conversionRate);
       sum += value;
-      if (factorName === floorName) min = value;
-      if (factorName === maxName) maxValue = value;
+      if (!min || value < min) min = value;
+      if (!max || value > max) max = value;
       return { ...staticFactor, value };
     });
     if (min < 1) return;
     factors = refactor;
+    floorValue = Math.round(min);
+    maxValue = max;
     total = sum;
   }
 
-  function half() {
-    let min, sum = 0;
-    const refactor = factors.map((factor, i) => {
-      const { name, value: currentValue } = factor;
-      const value = currentValue * 0.5;
-      sum += value;
-      if (name === floorName) min = value;
-      if (name === maxName) maxValue = value;
-      return { ...factor, value };
-    });
-    // ignore shortcut for lowest common denominator
-    if (min < 1) return;
-    factors = refactor;
-    total = sum;
-    const conversion = min / floorValue;
-    rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
-  }
 
   function resetValues() {
     let sum = 0;
@@ -69,29 +62,67 @@
       sum += value;
       return { ...factor, value };
     });
+    floorValue = valueMap.get(floorName);
+    maxValue = valueMap.get(maxName);
     total = sum;
-    rangeMultipliers = [0.25, 1.75];
+    updateRange(floorValue);
+  }
+
+  function half() {
+    let value = floorValue * 0.5;
+    if (value < 1) return;
+
+    updateRange(value);
+
+    value = Math.round(value);
+    floorValue = value;
+
+    updateValues({ name: floorName, value });
+
+    // let min, sum = 0;
+    // const refactor = factors.map((factor, i) => {
+    //   const { name, value: currentValue } = factor;
+    //   const value = currentValue * 0.5;
+    //   sum += value;
+    //   if (name === floorName) min = value;
+    //   if (name === maxName) maxValue = value;
+    //   return { ...factor, value };
+    // });
+    // // ignore shortcut for lowest common denominator
+    // console.log({ min });
+    // if (min < 1) return;
+    // factors = refactor;
+    // total = sum;
+    // const conversion = min / floorValue;
+    // console.log({ conversion });
+    // rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
+    // console.log(rangeMultipliers);
   }
 
   function double() {
-    let min, sum = 0;
-    factors = factors.map((factor, i) => {
-      const { name, value: currentValue } = factor;
-      const value = Math.round(currentValue * 2);
-      sum += value;
-      if (name === floorName) min = value;
-      if (name === maxName) maxValue = value;
-      return { ...factor, value };
-    });
-    total = sum;
-    const conversion = min / floorValue;
-    rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
+    let value = floorValue * 2;
+
+    updateRange(value);
+    value = Math.round(value);
+    floorValue = value;
+
+    updateValues({ name: floorName, value });
+    // let min, sum = 0;
+    // factors = factors.map((factor, i) => {
+    //   const { name, value: currentValue } = factor;
+    //   const value = Math.round(currentValue * 2);
+    //   sum += value;
+    //   if (name === floorName) min = value;
+    //   if (name === maxName) maxValue = value;
+    //   return { ...factor, value };
+    // });
+    // total = sum;
+    // const conversion = min / floorValue;
+    // rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
   }
 
-  function overrideValues({ detail: { value }}) {
-    const diff = value - total;
-    maxValue += diff;
-    updateValues({ detail: { name: maxName, value: maxValue }})
+  function handleSliderInput({ detail }) {
+    updateValues(detail);
   }
 
   function close() {
@@ -100,15 +131,24 @@
   }
 </script>
 
-<div class="backdrop" on:click|self={close}>
+<div class="backdrop" on:click|self={close} aria-hidden={true}>
   <div class="floating container">
     <div class="title-bar">
       <h2>{ratio.label} <span>({Math.round(total)} g)</span></h2>
       <!-- <Slider factor={totalFactor} multipliers={rangeMultipliers} on:update={overrideValues} /> -->
     </div>
-    {#each factors as factor}
-      <Slider {factor} multipliers={rangeMultipliers} on:update={updateValues} />
-    {/each}
+    <div class="factors">
+      {#each factors as factor}
+        {#if locked}
+          <Factor {factor} />
+        {:else}
+          <Slider {factor} {relativeRange} on:update={handleSliderInput} />
+        {/if}
+      {/each}
+    </div>
+    {#if locked}
+      <Slider factor={{ name: floorName, value: floorValue }} {relativeRange} on:update={handleSliderInput} />
+    {/if}
     <div class="shortcuts">
       <button class="shortcut" on:click={half}>
         ½
@@ -156,13 +196,16 @@
     border-radius: 8px;
     padding: 0.75rem 1rem 0.75rem;
   }
+  .factors {
+    margin: 1rem 0;
+  }
   .title-bar {
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: baseline;
     /* align-items: center; */
-    margin-bottom: 2rem;
+    /* margin-bottom: 2rem; */
   }
   span {
     font-size: 1rem;

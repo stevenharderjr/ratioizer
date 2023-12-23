@@ -10,7 +10,7 @@
   let editing = '';
 
   function useRatio({ detail }) {
-    console.log('selection:', detail);
+    console.log('using:', detail);
     using = detail.name;
   }
 
@@ -35,8 +35,12 @@
 
 </script>
 
+<svelte:head>
+  <title>Ratioizer</title>
+</svelte:head>
+
 {#if !using}
-  <Dashboard on:selection={useRatio} />
+  <Dashboard on:use={useRatio} on:edit={editRatio} />
 {:else if !editing}
   <Use ratio={$ratios[using]} on:close={cancel} />
 {:else}

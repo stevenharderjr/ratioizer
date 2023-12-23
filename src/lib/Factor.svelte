@@ -45,20 +45,19 @@
     align-items: flex-start;
     padding-left: 8px;
     flex-wrap: wrap;
-    font-size: 1.25rem;
     width: fit-content;
+    margin-left: -0.9rem;
   }
 
   .components {
     display: flex;
     flex-direction: row;
     max-width: 16rem;
-    font-size: 1rem;
   }
 
   .title {
     min-width: 50%;
-    max-width: 8rem;
+    max-width: 10rem;
   }
 
   .numeric {
@@ -92,6 +91,11 @@
     bottom: 0.75rem;
     left: 1rem;
     padding: 0 1rem;
+  }
+
+  input {
+    font-size: 1rem;
+    font-weight: 300;
   }
 
   button {

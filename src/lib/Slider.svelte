@@ -3,12 +3,12 @@
   const dispatch = createEventDispatcher();
 
   export let factor = {};
-  export let multipliers = [0.25, 1.75];
+  export let relativeRange = [0.25, 1.75];
 
   const baseline = factor.value;
   $: delta = Math.round(factor.value - baseline);
-  $: min = Math.round(baseline * multipliers[0]);
-  $: max = Math.round(baseline * multipliers[1]);
+  $: min = Math.max(1, Math.round(baseline * relativeRange[0]));
+  $: max = Math.round(baseline * relativeRange[1]);
   // const min = Math.round(baseline * 0.25);
   // const max = Math.round(baseline * 1.75);
 
@@ -55,6 +55,7 @@
   }
 
   input {
+    width: 100%;
     margin-bottom: 1.5rem;
   }
 

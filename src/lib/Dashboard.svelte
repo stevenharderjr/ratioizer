@@ -10,14 +10,11 @@
     // ratios.update(all => [newRatio, ...all]);
   }
 
-  function handleSelection({ detail }) {
-    dispatch('selection', detail);
-  }
 </script>
 
 <div class="ratios">
   {#each Object.keys($ratios) as key, i}
-    <Ratio index={i} name={key} detail={$ratios[key]} on:selection={handleSelection} />
+    <Ratio index={i} name={key} detail={$ratios[key]} on:use />
   {/each}
 
 </div>
