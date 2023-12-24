@@ -131,7 +131,7 @@
   }
 </script>
 
-<!-- <div class="backdrop" on:click|self={close} aria-hidden={true}> -->
+<div class="backdrop" on:click|self={close} aria-hidden={true}>
   <div class="floating container">
     <div class="title-bar">
       <h2>{ratio.label} <span>({Math.round(total)} g)</span></h2>
@@ -166,7 +166,7 @@
       </svg>
     </button>
   </div>
-<!-- </div> -->
+</div>
 
 <style>
   h2 {
@@ -195,7 +195,6 @@
     background: #fff;
     border-radius: 8px;
     padding: 0.75rem 1rem 0.75rem;
-    margin-bottom: 1rem;
   }
   .factors {
     margin: 1rem 0;

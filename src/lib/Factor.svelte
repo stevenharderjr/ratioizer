@@ -1,35 +1,50 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
+  import selectOnFocus from '$lib/utils/selectOnFocus';
+  import Toast from '../toast';
   const dispatch = createEventDispatcher();
   export let factor = {};
   export let parentName = '';
   export let parentLabel = '';
-  export let id = '';
-  export let index = -1;
   export let edit = false;
+  let labelInput;
+  const initialValues = { ...factor };
   let undo = false;
 
-  function handleUpdate({ currentTarget: { value: inputValue, id } }) {
-    dispatch('update', { ...factor, [id]: inputValue, parentName });
+  function handleBlur({ currentTarget }) {
+    const { value: inputValue, name: key } = currentTarget;
+    const defaultValue = initialValues[key];
+    if (defaultValue && !inputValue) currentTarget.value = defaultValue;
+  }
+
+  function handleEdits({ currentTarget: { value: inputValue, name: key } }) {
+    if (!inputValue) return;
+    const payload = { ...factor, [key]: inputValue || defaultValue, parentName };
+    dispatch('update', payload);
   }
 
   function toggleDelete() {
-    dispatch(undo ? 'restoreFactor' : 'deleteFactor', { factor, parentName });
+    dispatch(undo ? 'restore' : 'delete', { factor, parentName });
     undo = !undo;
+    if (!factor.name) undo = false;
   }
+
+  onMount(() => {
+    if (!factor.name) labelInput.focus();
+  })
 </script>
 
 <div class="factor">
-  <input name="label" class="title input" type="text" value={factor.label} on:change={handleUpdate} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+  <input bind:this={labelInput} name="label" class="title input" type="text" placeholder={initialValues.label || "New Factor"} value={factor.label} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleEdits} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
   <div class="components">
-    <input name="value" class="numeric input" type="text" value={factor.value} on:change={handleUpdate
+    <input name="value" class="numeric input" type="text" inputmode="numeric" placeholder={initialValues.value} value={factor.value} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleEdits
 } style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
-    <input name="unit" class="unit input" type="text" value={factor.unit} on:change={handleUpdate
+    <input name="unit" class="unit input" type="text" placeholder={initialValues.unit} value={factor.unit} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleEdits
 } style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
   </div>
   {#if edit}
     <button class='button-action' on:click={toggleDelete}>
-      <img src={undo ? 'undo.svg' : 'trash.svg'} />
+      <img src={undo ? 'undo.svg' : 'trash-2.svg'} />
     </button>
     {#if undo}
       <div class="strikethrough"></div>
@@ -42,11 +57,12 @@
     position: relative;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    padding-left: 8px;
-    flex-wrap: wrap;
-    width: fit-content;
-    margin-left: -0.9rem;
+    align-items: center;
+    justify-content: space-between;
+    /* padding-left: 8px; */
+    flex-wrap: nowrap;
+    /* width: 90%; */
+    /* margin-left: -1rem; */
   }
 
   .components {
@@ -57,7 +73,7 @@
 
   .title {
     min-width: 50%;
-    max-width: 10rem;
+    max-width: 8rem;
   }
 
   .numeric {
@@ -88,8 +104,8 @@
     width: 85%;
     border: 1.5px solid #0006;
     height: 1px;
-    bottom: 0.75rem;
-    left: 1rem;
+    bottom: 1.15rem;
+    left: 0.25rem;
     padding: 0 1rem;
   }
 
@@ -99,11 +115,15 @@
   }
 
   button {
-    position: absolute;
-    right: -20px;
-    top: 2px;
+    position: relative;
+    /* right: -0.75rem; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    width: 42px;
     border: none;
     background: #0000;
-    opacity: 60%;
+    opacity: 50%;
   }
 </style>

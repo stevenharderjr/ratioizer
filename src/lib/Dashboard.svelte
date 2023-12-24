@@ -1,22 +1,40 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Ratio from '$lib/Ratio.svelte';
+  import Use from '$lib/Use.svelte';
+  import Edit from '$lib/Edit.svelte';
   import { ratios } from '../stores.ts'
   import Toast from '../toast';
   const dispatch = createEventDispatcher();
+
+  export let using = '';
+  export let editing = '';
 
   function addRatio() {
     Toast.add({ blur: false, message: 'Should add a new ratio', duration: 1000, dismissable: false });
     // ratios.update(all => [newRatio, ...all]);
   }
 
+  function updateFactor({ detail: { parentName, name, label, value, unit }}) {
+    const test = label.toLowerCase();
+    if (test !== name) {
+      // new factor or rename
+      //
+    }
+  }
+
 </script>
 
 <div class="ratios">
-  {#each Object.keys($ratios) as key, i}
-    <Ratio index={i} name={key} detail={$ratios[key]} on:use />
+  {#each $ratios as ratio}
+    {#if using === ratio.name}
+      <Use {ratio} on:update on:close />
+    {:else if editing === ratio.name}
+      <Edit {ratio} on:update on:close />
+    {:else}
+      <Ratio edit={editing === ratio.name} {ratio} on:use on:edit on:close />
+    {/if}
   {/each}
-
 </div>
 
 <div class="button-container">
