@@ -156,7 +156,7 @@
       <button class="shortcut" on:click={resetValues} style="font-size:small;flex:2;">
         RESET
       </button>
-      <button class="shortcut" on:click={double}>
+      <button class="shortcut" on:click={double} style="font-size:small;">
         ×2
       </button>
     </div>
@@ -194,11 +194,14 @@
     max-width: 96vw;
     background: #fff;
     border-radius: 8px;
-    padding: 0.75rem 1rem 0.75rem;
+    padding: 10px 14px;
     margin-bottom: 1rem;
   }
   .factors {
-    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
   }
   .title-bar {
     position: relative;

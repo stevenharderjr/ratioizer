@@ -10,132 +10,30 @@
   const dispatch = createEventDispatcher();
 
   export let ratio = {};
-  export let edit = '';
-  let partialFactor = false;
-  const initialLabel = ratio.label;
-  let labelInput;
-
-  export let locked = true;
-  let dirty = false;
-  $: image = locked ? 'lock.svg' : 'unlock.svg';
   let factors = ratio.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
 
-  function handleBlur({ currentTarget }) {
-    const { value: inputValue, name: key } = currentTarget;
-    if (initialLabel && !inputValue) currentTarget.value = initialLabel;
+  function use() {
+    dispatch('use', ratio.name);
   }
 
-  function handleRename(e) {
-    const { value } = e.currentTarget;
-    if (!value) return;
-    e.currentTarget.blur();
-    console.log('Should rename "' + ratio.label + '" to "' + value + '"');
-  }
-
-  function updateFactor({ detail }) {
-    console.log(detail);
-    const { parentName, name, label, value, unit } = detail;
-    if (!name) return;
-    factors = factors.map(factor => {
-      if (factor.name !== parentName) return factor;
-      return { name, label, value, unit };
-    })
-  }
-
-  function applyChanges({ detail: { parentName, name, label, value, unit }}) {
-
-    const test = label.toLowerCase();
-    // if (!name) {
-    //   // new factor
-    //   const duplicate = factors.find(({ name }) => name === test);
-    //   if (!duplicate) {
-    //     factors
-    //   }
-    // }
-    // if (name !== test) {
-
-    //   if (!name) {
-    //     // new factor
-    //     newFactor =
-    //   }
-    // }
-  }
-
-  function handleUpdate({ detail: { parentName, name, label, value, unit } }) {
-    const test = label.toLowerCase();
-    console.log({ parentName, name, label, value, unit });
-    // edge cases:
-    // partial info
-    // rename
-    // new factor
-  }
-
-  function handleDelete({ detail: { factor, parentName } }) {
-    const { name: factorName } = factor;
-    if (!factorName) return cancelPartialFactor();
-  }
-
-  function cancelPartialFactor() {
-    factors = factors.filter(({ name }) => !!name);
-    partialFactor = false;
-  }
-
-  function toggleEdit() {
-    if (edit) {
-      cancelPartialFactor();
-      return dispatch('close');
-    }
-
+  function edit() {
     dispatch('edit', ratio.name);
-    labelInput.focus();
-  }
-
-  function toggleRatioLock() {
-    locked = !locked;
-    Toast.add({ message: locked ? 'Unlocked' : 'Locked', blur: false, replace: true });
-  }
-
-  function handleSelection() {
-    if (edit) return;
-    // console.log('selection:', detail)
-    dispatch('use', { name: ratio.name })
-  }
-
-  function addFactor() {
-    // Toast.add({ message: 'Should add another factor', blur: false })
-    factors = [...factors, { label: '', value: 0, unit: 'g' }];
-    partialFactor = true;
   }
 </script>
 
-<div class="floating ratio" on:click={handleSelection} aria-hidden="true">
+<div class="floating ratio" on:click={use} aria-hidden="true">
   <div class="label-bar">
-    <input class="label" name="label" type="text" value={ratio.label} placeholder={initialLabel} bind:this={labelInput} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <span class="label">{ratio.label}</span>
   </div>
   <div class="factors">
     {#each factors as factor}
-      <Factor {edit} parentName={ratio.name} parentLabel={ratio.label} factor={factor} on:update={updateFactor} on:delete={handleDelete} />
+      <Factor parentName={ratio.name} parentLabel={ratio.label} factor={factor} />
     {/each}
-    {#if edit && !partialFactor}
-      <button class="add-factor" on:click={addFactor}>
-        + New Factor
-      </button>
-    {/if}
   </div>
-  {#if edit}
-    <div class="edit-actions">
-      <button class="edit-action" on:click|stopPropagation={toggleEdit}>
-        CANCEL
-      </button>
-      <button class="edit-action" on:click|stopPropagation={applyChanges}>
-        APPLY
-      </button>
-    </div>
-    <!-- <CloseButton on:click={toggleEdit} /> -->
-  {/if}
+
   <div class="options">
-    <button class="option-button" on:click|stopPropagation={toggleEdit}>
-      <img src={edit ? "x.svg" : "edit.svg"} />
+    <button class="option-button" on:click|stopPropagation={edit}>
+      <img src="edit.svg" />
     </button>
     <!-- {#if use && !edit}
       <button class="option-button" on:click|stopPropagation={toggleRatioLock}>
@@ -157,13 +55,10 @@
     background: #fff;
     width: 20rem;
     max-width: 92vw;
-    padding: 0.25rem;
+    padding: 10px 14px;
   }
   input {
-    font-size: 1.25rem;
-    font-weight: 500;
-    flex: 1;
-    max-width: 12rem;
+
   }
   input:focus {
     padding: 4px 8px;
@@ -186,9 +81,11 @@
     background: transparent;
   }
   .factors {
-    margin: 0 1rem 1rem 0;
-    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 4.25rem 1rem 0.5rem;
     width: 100%;
+    gap: 0.5rem;
     /* background: #f006; */
   }
   .disabled {
@@ -215,6 +112,9 @@
   }
   .label {
     max-height: 2rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    flex: 1;
   }
 
   .edit-actions {

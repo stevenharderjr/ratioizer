@@ -1,8 +1,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Ratio from '$lib/Ratio.svelte';
-  import Use from '$lib/Use.svelte';
-  import Edit from '$lib/Edit.svelte';
+  import EditRatio from '$lib/EditRatio.svelte';
+  import UseRatio from '$lib/UseRatio.svelte';
   import { ratios } from '../stores.ts'
   import Toast from '../toast';
   const dispatch = createEventDispatcher();
@@ -28,11 +28,11 @@
 <div class="ratios">
   {#each $ratios as ratio}
     {#if using === ratio.name}
-      <Use {ratio} on:update on:close />
+      <UseRatio {ratio} on:update on:close />
     {:else if editing === ratio.name}
-      <Edit {ratio} on:update on:close />
+      <EditRatio {ratio} on:update on:close />
     {:else}
-      <Ratio edit={editing === ratio.name} {ratio} on:use on:edit on:close />
+      <Ratio {ratio} on:use on:edit />
     {/if}
   {/each}
 </div>

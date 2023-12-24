@@ -1,5 +1,5 @@
 <script>
-  import Factor from '$lib/Factor.svelte';
+  import EditFactor from '$lib/EditFactor.svelte';
   import CloseButton from '$lib/CloseButton.svelte';
   import selectOnFocus from '$lib/utils/selectOnFocus';
   import { createEventDispatcher } from 'svelte';
@@ -33,16 +33,61 @@
   }
 
   function updateFactor({ detail }) {
-    console.log(detail);
-    const { parentName, name, label, value, unit } = detail;
-    if (!name) return;
-    factors = factors.map(factor => {
-      if (factor.name !== parentName) return factor;
-      return { name, label, value, unit };
-    })
+    const update = { ...detail };
+    const { name, label, value } = update;
+    let validated = true;
+
+    if (!label) {
+      validated = false;
+      Toast.add({ message: 'Each factor must have a name.', duration: 5000, type: 'error' });
+    }
+    if (!value) {
+      validated = false;
+      Toast.add({ message: 'Each factor must have a value.', duration: 5000, type: 'error' });
+    }
+    if (isNaN(value) || value < 1) {
+      validated = false;
+      Toast.add({ message: 'Each value must be a positive number.', duration: 5000, type: 'error' });
+    }
+    if (!validated) return;
+
+    if (!name) update.name === update.label.toLowerCase();
+
+    const duplicates = [...ratio.factors, update].filter(factor => factor.name === update.name);
+    if (duplicates.length > 1) {
+      validated = false;
+      Toast.add({ message: 'Factor names must be unique.', duration: 5000, type: 'error' });
+    }
+
+    return dispatch('update', update);
   }
 
-  function applyChanges({ detail: { parentName, name, label, value, unit }}) {
+  function applyChanges() {
+    const errors = [];
+    let validated = true;
+    const validatedFactors = [];
+
+    ratio.factors.forEach(factor => {
+      const { name, label, value } = factor;
+
+      if (!label) {
+        validated = false;
+        errors.push({ message: 'Each factor must have a name.', duration: 5000, type: 'error' });
+      }
+      if (!value) {
+        validated = false;
+        errors.push({ message: 'Each factor must have a value.', duration: 5000, type: 'error' });
+      }
+      if (isNaN(value) || value < 1) {
+        validated = false;
+        errors.push({ message: 'Each value must be a positive number.', duration: 5000, type: 'error' });
+      }
+      if (!name) factor.name = label.toLowerCase();
+    });
+
+    const duplicateFactors = factors.filter()
+
+    if (!validated) return;
 
     const test = label.toLowerCase();
     // if (!name) {
@@ -114,7 +159,7 @@
   </div>
   <div class="factors">
     {#each factors as factor}
-      <Factor {edit} parentName={ratio.name} parentLabel={ratio.label} factor={factor} on:update={updateFactor} on:delete={handleDelete} />
+      <EditFactor {edit} parentName={ratio.name} parentLabel={ratio.label} factor={factor} on:update={updateFactor} on:delete={handleDelete} />
     {/each}
     {#if edit && !partialFactor}
       <button class="add-factor" on:click={addFactor}>

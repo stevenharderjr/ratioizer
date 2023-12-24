@@ -1,17 +1,15 @@
 <script>
   import { onMount } from 'svelte';
   import Dashboard from '$lib/Dashboard.svelte';
-  import Use from '$lib/Use (old).svelte';
-  import Edit from '$lib/Edit.svelte';
   import { ratios } from '../stores';
   import Toast from '../toast';
 
   let using = '';
   let editing = '';
 
-  function useRatio({ detail: { name } }) {
+  function useRatio({ detail }) {
     editing = '';
-    using = name;
+    using = detail;
   }
 
   function updateRatio({ detail }) {
