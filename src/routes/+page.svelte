@@ -26,8 +26,9 @@
     editing = '';
   }
 
-  function deleteRatio({ detail: { name } }) {
-    delete $ratios[name];
+  function deleteRatio({ detail: { name: deleteName } }) {
+
+    $ratios = $ratios.filter(({ name }) => (name !== deleteName));
   }
 
   // onMount(() => Toast.add({ message: 'Hello World!', type: 'error', title: 'Error Example' }));

@@ -23,6 +23,10 @@
     dispatch('update', payload);
   }
 
+  function handleLabelUpdate({ currentTarget: { value: inputValue }}) {
+
+  }
+
   function toggleDelete() {
     dispatch(undo ? 'restore' : 'delete', { factor, parentName });
     undo = !undo;

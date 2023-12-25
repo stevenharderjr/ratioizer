@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import Confirm from '$lib/Confirm.svelte';
   import Ratio from '$lib/Ratio.svelte';
   import EditRatio from '$lib/EditRatio.svelte';
   import UseRatio from '$lib/UseRatio.svelte';
@@ -9,6 +10,8 @@
 
   export let using = '';
   export let editing = '';
+  let deleting = undefined;
+  let partialRatio = false;
 
   function addRatio() {
     Toast.add({ blur: false, message: 'Should add a new ratio', duration: 1000, dismissable: false });
@@ -23,6 +26,17 @@
     }
   }
 
+  function toggleSelfDestructSequence({ detail }) {
+    deleting = detail?.label ? detail : undefined;
+  }
+
+  function selfDestruct() {
+    dispatch('delete', deleting);
+    deleting = undefined;
+  }
+
+  function addRatio
+
 </script>
 
 <div class="ratios">
@@ -32,10 +46,14 @@
     {:else if editing === ratio.name}
       <EditRatio {ratio} on:update on:close />
     {:else}
-      <Ratio {ratio} on:use on:edit />
+      <Ratio {ratio} on:use on:edit on:delete={toggleSelfDestructSequence} />
     {/if}
-  {/each}
+    {/each}
 </div>
+
+{#if deleting}
+  <Confirm question={`Delete "${deleting.label}"?`} on:confirm={selfDestruct} on:reject={toggleSelfDestructSequence} />
+{/if}
 
 <div class="button-container">
   <button on:click={addRatio} aria-label="Add new ratio.">

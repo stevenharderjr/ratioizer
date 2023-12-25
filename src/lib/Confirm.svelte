@@ -1,0 +1,98 @@
+<script>
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { blur } from '../stores';
+  const dispatch = createEventDispatcher();
+
+  export let title = '';
+  export let question = ''
+  $: split = question.split('"');
+
+  function confirm() {
+    dispatch('confirm');
+  }
+
+  function reject() {
+    dispatch('reject');
+  }
+
+  onMount(() => ($blur = true));
+  onDestroy(() => ($blur = false));
+</script>
+
+<div class="backdrop" on:click|self={reject} aria-hidden={true}>
+  <div class="container">
+    {#if title}
+      <h2 class="title">{title}</h2>
+    {/if}
+    {#if question}
+      <p class="description">{split[0]}<span style="font-weight:600;">{split[1]}</span>{split[2]}</p>
+    {/if}
+    <div class="buttons">
+      <button class="reject" on:click={reject}>
+        <img src="x-circle.svg" />
+        No
+      </button>
+      <button class="confirm" on:click={confirm}>
+        <img src="check-circle.svg" />
+        Yes
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .backdrop {
+    z-index: 4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .container {
+    width: 20rem;
+    max-width: 92vw;
+    height: fit-content;
+    background: #000c;
+    border-radius: 8px;
+    /* backdrop-filter: blur(8px); */
+    color: #fff;
+    padding: 1rem;
+  }
+  .description {
+    font-size: 1rem;
+  }
+  .buttons {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: stretch;
+    align-items: center;
+    gap: 1rem;
+    min-width: 50%;
+    margin-top: 1rem;
+  }
+  button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 4px;
+    background: #fffc;
+    min-width: 5rem;
+    height: 42px;
+    font-size: small;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  img {
+    margin-right: 0.25rem;
+  }
+  /* span {
+  } */
+</style>
