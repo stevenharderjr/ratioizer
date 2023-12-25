@@ -1,15 +1,15 @@
-<script>
+<script lang="ts">
   import EditFactor from '$lib/EditFactor.svelte';
   import CloseButton from '$lib/CloseButton.svelte';
   import selectOnFocus from '$lib/utils/selectOnFocus';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { editing, toasts, using } from '../stores';
   import Toast from '../toast';
   // import '$static/lock.svg';
   // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
 
-  export let ratio = {};
+  export let ratio: App.Ratio = { label: '', factors: [] };
   export let edit = true;
   let partialFactor = false;
   const initialLabel = ratio.label;
@@ -151,11 +151,13 @@
     factors = [...factors, { label: '', value: 0, unit: 'g' }];
     partialFactor = true;
   }
+
+  onMount(() => labelInput.focus());
 </script>
 
 <div class="floating ratio" on:click={handleSelection} aria-hidden="true">
   <div class="label-bar">
-    <input class="label" name="label" type="text" value={ratio.label} placeholder={initialLabel} bind:this={labelInput} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <input bind:this={labelInput} class="label" name="label" type="text" value={ratio.label} placeholder={initialLabel} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
   </div>
   <div class="factors">
     {#each factors as factor}
@@ -229,6 +231,7 @@
     width: 42px;
     border: none;
     background: transparent;
+    cursor: pointer;
   }
   .factors {
     margin: 0 1rem 1rem 0;
@@ -307,5 +310,6 @@
     text-align: center;
     padding: 4px 8px;
     /* background: #f006; */
+    cursor: pointer;
   }
 </style>

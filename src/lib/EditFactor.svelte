@@ -113,6 +113,10 @@
     padding: 0 1rem;
   }
 
+  .button-action {
+    cursor: pointer;
+  }
+
   input {
     font-size: 1rem;
     font-weight: 300;

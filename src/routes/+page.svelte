@@ -1,38 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
   import Dashboard from '$lib/Dashboard.svelte';
-  import { ratios } from '../stores';
-  import Toast from '../toast';
-
-  let using = '';
-  let editing = '';
-
-  function useRatio({ detail }) {
-    editing = '';
-    using = detail;
-  }
-
-  function updateRatio({ detail }) {
-    console.log('UPDATE RATIO', detail);
-  }
-
-  function editRatio({ detail }) {
-    using = '';
-    editing = detail;
-  }
-
-  function cancel() {
-    using = '';
-    editing = '';
-  }
-
-  function deleteRatio({ detail: { name: deleteName } }) {
-
-    $ratios = $ratios.filter(({ name }) => (name !== deleteName));
-  }
-
-  // onMount(() => Toast.add({ message: 'Hello World!', type: 'error', title: 'Error Example' }));
-
 </script>
 
 <svelte:head>
@@ -40,7 +7,7 @@
 </svelte:head>
 
 <!-- {#if !using} -->
-  <Dashboard {editing} {using} on:use={useRatio} on:edit={editRatio} on:close={cancel} on:delete={deleteRatio} />
+  <Dashboard />
 <!-- {:else if !editing}
   <Use ratio={$ratios[using]} on:close={cancel} />
 {:else}

@@ -17,7 +17,7 @@
   }
 </script>
 
-{#if factor.label }
+{#if factor?.label }
   <div class="factor">
     <span class="label">{factor.label}</span>
     <div>
@@ -29,7 +29,7 @@
     </div>
   </div>
 {/if}
-<input class="slider" type="range" {min} {max} value={factor.value} on:input={handleChange} />
+<input class="slider" type="range" {min} {max} value={factor?.value} on:input={handleChange} />
 
 <style>
   .factor {

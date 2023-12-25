@@ -58,7 +58,7 @@
     width: 20rem;
     max-width: 92vw;
     height: fit-content;
-    background: #000c;
+    background: #000b;
     border-radius: 8px;
     /* backdrop-filter: blur(8px); */
     color: #fff;

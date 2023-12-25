@@ -1,18 +1,18 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import Slider from '$lib/Slider.svelte';
 	import Factor from './Factor.svelte';
   import Fraction from '$lib/Fraction.svelte';
   const dispatch = createEventDispatcher();
 
-  export let ratio = {};
-  let factors = [];
-  let relativeRange = [];
-  let lowFactor, highFactor, floorName, floorValue, maxName, maxValue;
+  export let ratio = { label: '', factors: [] };
+  let factors: App.Factor[] = [];
+  let relativeRange = [0.125, 1.985];
+  let lowFactor, highFactor, floorName: string, floorValue: number, maxName: string, maxValue: number;
   let total = 0;
   let locked = true;
   $: totalFactor = { value: total };
-  let valueMap = new Map(ratio.factors.map((factor) => {
+  let valueMap: Map<string, number> = new Map(ratio.factors.map((factor) => {
       const { name, value } = factor;
       factors.push(factor)
       total += +value;
@@ -27,30 +27,30 @@
       }
       return [name, value];
     }));
-  updateRange(floorValue);
+  updateRange(floorValue!);
 
-  function updateRange(floor) {
-    const staticFloor = valueMap.get(floorName);
+  function updateRange(floor: number) {
+    const staticFloor = valueMap.get(floorName) as number;
     const conversion = floor / staticFloor;
-    relativeRange = [(conversion * 0.125).toPrecision(3), (conversion * 1.875).toPrecision(3)];
+    relativeRange = [+(conversion * 0.125).toPrecision(3), +(conversion * 1.875).toPrecision(3)];
   }
 
-  function updateValues({ name, value: targetValue }) {
-    const conversionRate = targetValue / valueMap.get(name);
-    let min, max, sum = 0;
+  function updateValues({ name, value: targetValue }: { name: string, value: number }) {
+    const conversionRate = targetValue / (valueMap.get(name) as number);
+    let min: number, max: number, sum = 0;
     const refactor = factors.map((factor, i) => {
       const { name: factorName, value: currentValue } = factor;
-      const staticFactor = ratio.factors[i];
+      const staticFactor: App.Factor = ratio.factors[i];
       const value = Math.round(staticFactor.value * conversionRate);
       sum += value;
       if (!min || value < min) min = value;
       if (!max || value > max) max = value;
       return { ...staticFactor, value };
     });
-    if (min < 1) return;
+    if (min! < 1) return;
     factors = refactor;
-    floorValue = Math.round(min);
-    maxValue = max;
+    floorValue = Math.round(min!);
+    maxValue = max!;
     total = sum;
   }
 
@@ -62,8 +62,8 @@
       sum += value;
       return { ...factor, value };
     });
-    floorValue = valueMap.get(floorName);
-    maxValue = valueMap.get(maxName);
+    floorValue = valueMap.get(floorName) as number;
+    maxValue = valueMap.get(maxName)as number;
     total = sum;
     updateRange(floorValue);
   }
@@ -78,25 +78,6 @@
     floorValue = value;
 
     updateValues({ name: floorName, value });
-
-    // let min, sum = 0;
-    // const refactor = factors.map((factor, i) => {
-    //   const { name, value: currentValue } = factor;
-    //   const value = currentValue * 0.5;
-    //   sum += value;
-    //   if (name === floorName) min = value;
-    //   if (name === maxName) maxValue = value;
-    //   return { ...factor, value };
-    // });
-    // // ignore shortcut for lowest common denominator
-    // console.log({ min });
-    // if (min < 1) return;
-    // factors = refactor;
-    // total = sum;
-    // const conversion = min / floorValue;
-    // console.log({ conversion });
-    // rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
-    // console.log(rangeMultipliers);
   }
 
   function double() {
@@ -107,18 +88,6 @@
     floorValue = value;
 
     updateValues({ name: floorName, value });
-    // let min, sum = 0;
-    // factors = factors.map((factor, i) => {
-    //   const { name, value: currentValue } = factor;
-    //   const value = Math.round(currentValue * 2);
-    //   sum += value;
-    //   if (name === floorName) min = value;
-    //   if (name === maxName) maxValue = value;
-    //   return { ...factor, value };
-    // });
-    // total = sum;
-    // const conversion = min / floorValue;
-    // rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
   }
 
   function handleSliderInput({ detail }) {
@@ -228,6 +197,7 @@
     pointer-events: auto;
     top: 0.5rem;
     right: 0.5rem;
+    cursor: pointer;
   }
 
   svg {

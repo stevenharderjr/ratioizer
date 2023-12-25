@@ -1,5 +1,5 @@
-<script>
-  export let factor = {};
+<script lang="ts">
+  export let factor: App.Factor = { label: '', value: 0, unit: '' };
   const initial = { ...factor };
   $: delta = factor.value - initial.value;
 </script>
@@ -26,6 +26,7 @@
     flex-wrap: nowrap;
     /* width: 90%; */
     /* margin-left: -1rem; */
+    pointer-events: none;
   }
 
   .components {

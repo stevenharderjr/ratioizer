@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Factor from '$lib/Factor.svelte';
   import CloseButton from '$lib/CloseButton.svelte';
   import selectOnFocus from '$lib/utils/selectOnFocus';
@@ -9,21 +9,20 @@
   // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
 
-  export let ratio = {};
-  let factors = ratio.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
+  export let ratio: App.Ratio = { label: '', factors: [] };
+  let factors: App.Factor[] = ratio.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
 
   function use() {
-    dispatch('use', ratio.name);
+    dispatch('use', ratio);
   }
 
   function edit() {
-    dispatch('edit', ratio.name);
+    dispatch('edit', ratio);
   }
 
   function remove() {
     // Toast.add('Should delete "' + ratio.label + '"');
     dispatch('delete', ratio);
-    $blur = true;
   }
 </script>
 
@@ -60,6 +59,7 @@
     width: 20rem;
     max-width: 92vw;
     padding: 10px 14px;
+    cursor: pointer;
   }
   img {
     height: 1.5rem;
@@ -77,6 +77,7 @@
     width: 42px;
     border: none;
     background: transparent;
+    cursor: pointer;
   }
   .factors {
     display: flex;

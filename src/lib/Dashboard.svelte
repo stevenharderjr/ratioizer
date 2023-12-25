@@ -1,16 +1,16 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import Confirm from '$lib/Confirm.svelte';
   import Ratio from '$lib/Ratio.svelte';
   import EditRatio from '$lib/EditRatio.svelte';
   import UseRatio from '$lib/UseRatio.svelte';
-  import { ratios } from '../stores.ts'
+  import { ratios } from '../stores'
   import Toast from '../toast';
   const dispatch = createEventDispatcher();
 
-  export let using = '';
-  export let editing = '';
-  let deleting = undefined;
+  let using: App.RatioFlag = undefined;
+  let editing: App.RatioFlag = undefined;
+  let deleting: App.RatioFlag = undefined;
   let partialRatio = false;
 
   function addRatio() {
@@ -18,41 +18,57 @@
     // ratios.update(all => [newRatio, ...all]);
   }
 
-  function updateFactor({ detail: { parentName, name, label, value, unit }}) {
-    const test = label.toLowerCase();
-    if (test !== name) {
-      // new factor or rename
-      //
-    }
+  function updateFactor({ detail: { parentName, label, value, unit } }: { detail: App.Factor }) {
+    const name = label.toLowerCase();
+
   }
 
-  function toggleSelfDestructSequence({ detail }) {
-    deleting = detail?.label ? detail : undefined;
+  function awaitConfirmation({ detail: ratio }: { detail: App.Ratio }) {
+    deleting = ratio;
   }
 
-  function selfDestruct() {
-    dispatch('delete', deleting);
+  function useRatio({ detail: ratio }: { detail: App.Ratio }) {
+    editing = undefined;
+    using = ratio;
+  }
+
+  function updateRatio({ detail: ratio }: { detail: App.Ratio }) {
+    console.log('UPDATE RATIO', ratio);
+  }
+
+  function editRatio({ detail: ratio }: { detail: App.Ratio }) {
+    using = undefined;
+    editing = ratio;
+  }
+
+  function deleteRatio() {
+    const deleteName = deleting!.name;
+    $ratios = $ratios.filter(({ name }) => (name !== deleteName));
     deleting = undefined;
   }
 
-  function addRatio
+  function cancel() {
+    using = undefined;
+    editing = undefined;
+  }
+
 
 </script>
 
 <div class="ratios">
   {#each $ratios as ratio}
-    {#if using === ratio.name}
-      <UseRatio {ratio} on:update on:close />
-    {:else if editing === ratio.name}
-      <EditRatio {ratio} on:update on:close />
+    {#if using?.name === ratio.name}
+      <UseRatio {ratio} on:close={cancel} />
+    {:else if editing?.name === ratio.name}
+      <EditRatio {ratio} on:update={updateRatio} on:close={cancel} />
     {:else}
-      <Ratio {ratio} on:use on:edit on:delete={toggleSelfDestructSequence} />
+      <Ratio {ratio} on:use={useRatio} on:edit={editRatio} on:delete={awaitConfirmation} />
     {/if}
     {/each}
 </div>
 
 {#if deleting}
-  <Confirm question={`Delete "${deleting.label}"?`} on:confirm={selfDestruct} on:reject={toggleSelfDestructSequence} />
+  <Confirm question={`Delete "${deleting.label}"?`} on:confirm={deleteRatio} on:reject={() => (deleting = undefined)} />
 {/if}
 
 <div class="button-container">
