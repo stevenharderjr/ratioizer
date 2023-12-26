@@ -11,7 +11,7 @@
     width: 100%;
     height: 1.25rem;
     padding: 3px 5px;
-    background: #fff;
+    background: #eee;
   }
   p {
     text-transform: uppercase;

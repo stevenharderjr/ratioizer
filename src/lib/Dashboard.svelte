@@ -92,6 +92,7 @@
     bottom: 1.5rem;
     pointer-events: none;
     width: 100%;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   button {
     border-radius: 9999px;

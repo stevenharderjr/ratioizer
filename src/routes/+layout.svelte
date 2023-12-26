@@ -11,7 +11,7 @@
   </div>
 
   <div class="header-shadow"></div>
-  <Header />
+  <!-- <Header /> -->
 
   <footer class="footer">
     <p>Copyright © Steven Harder 2023</p>
@@ -45,7 +45,7 @@
   .header-shadow {
     position: absolute;
     left: 0;
-    top: 1.25rem;
+    top: 0;
     right: 0;
     height: 0.5rem;
     background-image: linear-gradient(#0006, #0000);
@@ -61,14 +61,15 @@
     overflow-x: hidden;
     /* padding-top: 2.5rem;
     padding-bottom: 2rem; */
-    padding: 2.40rem 0.75rem 6rem 0.75rem;
+    padding: 1.25rem 0.75rem 6rem 0.75rem;
     /* padding-top: calc(1.15rem + var(--header-height)); */
     width: 100%;
     justify-content: center;
   }
   .footer {
     position: absolute;
-    padding: 2px;
+    padding-top: 2px;
+    padding-bottom: env(safe-area-inset-bottom, 2px);
     bottom: 0;
     left: 0;
     right: 0;
