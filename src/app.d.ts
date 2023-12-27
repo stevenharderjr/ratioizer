@@ -13,6 +13,7 @@ declare global {
 			unit: string | 'g';
 			parentName?: string;
 			parentLabel?: string;
+			softDelete?: boolean;
 		}
 
 		interface Ratio {

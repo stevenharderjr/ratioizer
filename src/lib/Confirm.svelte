@@ -29,11 +29,11 @@
     {/if}
     <div class="buttons">
       <button class="reject" on:click={reject}>
-        <img src="x-circle.svg" />
+        <img src="x-circle.svg" alt="reject" />
         No
       </button>
       <button class="confirm" on:click={confirm}>
-        <img src="check-circle.svg" />
+        <img src="check-circle.svg" alt="confirm" />
         Yes
       </button>
     </div>
@@ -89,6 +89,7 @@
     font-size: small;
     font-weight: 500;
     text-transform: uppercase;
+    color: #000;
   }
   img {
     margin-right: 0.25rem;

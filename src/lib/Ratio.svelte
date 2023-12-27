@@ -24,9 +24,14 @@
     // Toast.add('Should delete "' + ratio.label + '"');
     dispatch('delete', ratio);
   }
+
+  function handleKeyPress(event) {
+    const { key } = event;
+    if (key === 'Space' || key === 'Enter') use();
+  }
 </script>
 
-<div class="floating ratio" on:click={use} aria-hidden="true">
+<div class="floating ratio" on:click={use} tabindex=0 role="button" on:keypress={handleKeyPress}>
   <div class="label-bar">
     <span class="label">{ratio.label}</span>
   </div>
@@ -38,10 +43,10 @@
 
   <div class="options">
     <button class="option-button" on:click|stopPropagation={edit}>
-      <img src="edit.svg" />
+      <img src="edit.svg" alt={'edit ' + ratio.name}/>
     </button>
-    <button class="option-button" on:click|stopPropagation={remove} style="margin-top:-1px; margin-right:2px;">
-      <img src="trash-2.svg" />
+    <button class="option-button" on:click|stopPropagation={remove} style="margin-top:-2px;">
+      <img src="trash-2.svg" alt={'delete ' + ratio.name} />
     </button>
   </div>
 </div>
@@ -57,7 +62,7 @@
     margin-bottom: 1rem;
     background: #fff;
     width: 20rem;
-    max-width: 92vw;
+    max-width: 100%;
     padding: 10px 14px;
     cursor: pointer;
   }
@@ -82,8 +87,10 @@
   .factors {
     display: flex;
     flex-direction: column;
-    padding: 1rem 4.25rem 1rem 0.5rem;
+    align-self: flex-start;
+    padding: 1rem 0.5rem 1rem 0.5rem;
     width: 100%;
+    max-width: 15.9rem;
     gap: 0.5rem;
     /* background: #f006; */
   }
@@ -97,7 +104,7 @@
   .options {
     position: absolute;
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     align-items: center;
     top: 0;
     right: 0;

@@ -17,7 +17,7 @@
 
 <style>
   .factor {
-    position: relative;
+    /* position: relative; */
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -27,13 +27,14 @@
     /* width: 90%; */
     /* margin-left: -1rem; */
     pointer-events: none;
+    min-width: 100%;
   }
 
   .components {
     display: flex;
     flex-direction: row;
     align-items: baseline;
-    max-width: 16rem;
+    justify-content: flex-end;
     gap: 4px;
   }
 
@@ -46,11 +47,6 @@
     max-width: 2rem;
     margin-left: 0;
     padding-left: 0;
-  }
-
-  .unit:focus {
-    margin-left: 1px;
-    padding-left: 4px;
   }
 
   .delta {

@@ -4,11 +4,11 @@
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",
-	"background_color": "#eeeeee",
-	"theme_color": "#eeeeee",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
 	"icons": [
 		{
-			"src": "/favicon.svg",
+			"src": "/favicon.png",
 			"type": "image/svg+xml",
 			"sizes": "any"
 		},
@@ -101,6 +101,19 @@
 			"src": "unlock2.svg",
 			"type": "image/svg+xml",
 			"sizes": "any"
+		}
+	],
+	"screenshots": [
+		{
+			"src": "screenshot-p.png",
+			"sizes": "1080x2339",
+			"type": "image/png"
+		},
+		{
+			"src": "screenshot-w.png",
+			"sizes": "1728x1080",
+			"type": "image/png",
+			"form_factor": "wide"
 		}
 	]
 }

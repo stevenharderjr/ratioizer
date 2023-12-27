@@ -5,6 +5,7 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { editing, toasts, using } from '../stores';
   import Toast from '../toast';
+	import Factor from './Factor.svelte';
   // import '$static/lock.svg';
   // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
@@ -12,7 +13,7 @@
   export let ratio: App.Ratio = { label: '', factors: [] };
   export let edit = true;
   let partialFactor = false;
-  const initialLabel = ratio.label;
+  let currentLabel = ratio.label;
   let labelInput;
 
   export let locked = true;
@@ -22,100 +23,90 @@
 
   function handleBlur({ currentTarget }) {
     const { value: inputValue, name: key } = currentTarget;
-    if (initialLabel && !inputValue) currentTarget.value = initialLabel;
+    if (currentLabel && !inputValue) currentTarget.value = currentLabel;
+  }
+
+  function handleFocus({ currentTarget }) {
+    currentTarget.value = '';
   }
 
   function handleRename(e) {
     const { value } = e.currentTarget;
     if (!value) return;
     e.currentTarget.blur();
-    console.log('Should rename "' + ratio.label + '" to "' + value + '"');
+    // console.log('Should rename "' + currentLabel + '" to "' + value + '"');
+    currentLabel = value;
   }
 
-  function updateFactor({ detail }) {
-    const update = { ...detail };
-    const { name, label, value } = update;
-    let validated = true;
-
-    if (!label) {
-      validated = false;
-      Toast.add({ message: 'Each factor must have a name.', duration: 5000, type: 'error' });
-    }
-    if (!value) {
-      validated = false;
-      Toast.add({ message: 'Each factor must have a value.', duration: 5000, type: 'error' });
-    }
-    if (isNaN(value) || value < 1) {
-      validated = false;
-      Toast.add({ message: 'Each value must be a positive number.', duration: 5000, type: 'error' });
-    }
-    if (!validated) return;
-
-    if (!name) update.name === update.label.toLowerCase();
-
-    const duplicates = [...ratio.factors, update].filter(factor => factor.name === update.name);
-    if (duplicates.length > 1) {
-      validated = false;
-      Toast.add({ message: 'Factor names must be unique.', duration: 5000, type: 'error' });
+  function updateFactor({ detail: update }: { detail: App.Factor }) {
+    if (!update.name) {
+      if (update.softDelete) return cancelPartialFactor();
+      factors.pop();
     }
 
-    return dispatch('update', update);
+    if (!update.label) {
+      if (update.softDelete && !update.name) return cancelPartialFactor();
+      factors = factors.map(factor => (factor.name === update.name ? update : factor));
+    } else {
+      if (update.value) partialFactor = false;
+      let rename = update.label.toLowerCase();
+      if (rename === update.name) {
+        // no name change, so just record other changes
+        console.log('update', rename);
+        factors = factors.map(factor => (factor.name === rename ? update : factor));
+      } else if (update.name) {
+        // factor has been renamed
+        console.log(`rename ${update.name} to ${rename}`);
+        factors = factors.map(factor => (factor.name === update.name ? { ...update, name: rename } : factor));
+      } else {
+        // must be a new factor
+        console.log('add', rename);
+        factors = [...factors, { ...update, name: rename }];
+      }
+    }
+
+    console.log(factors);
   }
 
   function applyChanges() {
     const errors = [];
+    const error = { duration: 5000, type: 'error' };
     let validated = true;
     const validatedFactors = [];
 
-    ratio.factors.forEach(factor => {
-      const { name, label, value } = factor;
+    if (!labelInput.value) {
+      validated = false;
+      errors.push({ ...error, message: 'Ratio must be named.' });
+    }
+
+    const finalFactors = factors.filter(factor => {
+      const { name, label, value, softDelete } = factor;
+      if (softDelete) return false;
 
       if (!label) {
         validated = false;
-        errors.push({ message: 'Each factor must have a name.', duration: 5000, type: 'error' });
+        errors.push({ ...error, message: 'Each factor must be named.' });
       }
       if (!value) {
         validated = false;
-        errors.push({ message: 'Each factor must have a value.', duration: 5000, type: 'error' });
+        errors.push({ ...error, message: 'Each factor must have a value.' });
       }
       if (isNaN(value) || value < 1) {
         validated = false;
-        errors.push({ message: 'Each value must be a positive number.', duration: 5000, type: 'error' });
+        errors.push({ ...error, message: 'Each value must be a positive number.' });
       }
       if (!name) factor.name = label.toLowerCase();
+      return true;
     });
 
-    const duplicateFactors = factors.filter()
+    if (!validated) return errors.forEach(error => Toast.add(error));
 
-    if (!validated) return;
-
-    const test = label.toLowerCase();
-    // if (!name) {
-    //   // new factor
-    //   const duplicate = factors.find(({ name }) => name === test);
-    //   if (!duplicate) {
-    //     factors
-    //   }
-    // }
-    // if (name !== test) {
-
-    //   if (!name) {
-    //     // new factor
-    //     newFactor =
-    //   }
-    // }
+    const label = labelInput.value;
+    const name = label.toLowerCase();
+    dispatch('update', { ...ratio, name, label, factors: finalFactors });
   }
 
-  function handleUpdate({ detail: { parentName, name, label, value, unit } }) {
-    const test = label.toLowerCase();
-    console.log({ parentName, name, label, value, unit });
-    // edge cases:
-    // partial info
-    // rename
-    // new factor
-  }
-
-  function handleDelete({ detail: { factor, parentName } }) {
+  function handleDelete({ detail: { factor } }) {
     const { name: factorName } = factor;
     if (!factorName) return cancelPartialFactor();
   }
@@ -155,9 +146,9 @@
   onMount(() => labelInput.focus());
 </script>
 
-<div class="floating ratio" on:click={handleSelection} aria-hidden="true">
+<div class="floating ratio">
   <div class="label-bar">
-    <input bind:this={labelInput} class="label" name="label" type="text" value={ratio.label} placeholder={initialLabel} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <input bind:this={labelInput} class="label" name="label" type="text" value={ratio.label} placeholder={currentLabel} on:focus={handleFocus} on:blur={handleBlur} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
   </div>
   <div class="factors">
     {#each factors as factor}
@@ -182,13 +173,12 @@
   {/if}
   <div class="options">
     <button class="option-button" on:click|stopPropagation={toggleEdit}>
-      <img src={edit ? "x.svg" : "edit.svg"} />
+      {#if edit}
+      <img src="x.svg" alt="cancel edits" />
+      {:else}
+      <img src="edit.svg" alt={'edit ' + ratio.label} />
+      {/if}
     </button>
-    <!-- {#if use && !edit}
-      <button class="option-button" on:click|stopPropagation={toggleRatioLock}>
-        <img src={locked ? 'unlock.svg' : 'lock.svg'} />
-      </button>
-    {/if} -->
   </div>
 </div>
 
@@ -203,14 +193,14 @@
     margin-bottom: 1rem;
     background: #fff;
     width: 20rem;
-    max-width: 92vw;
+    max-width: 100%;
     padding: 0.25rem;
   }
   input {
     font-size: 1.25rem;
     font-weight: 500;
     flex: 1;
-    max-width: 12rem;
+    max-width: 14rem;
   }
   input:focus {
     padding: 4px 8px;
@@ -239,9 +229,6 @@
     width: 100%;
     /* background: #f006; */
   }
-  .disabled {
-    pointer-events: none;
-  }
   .label-bar {
     position: relative;
     width: 100%;
@@ -257,9 +244,6 @@
     top: 0;
     right: 0;
     pointer-events: auto;
-  }
-  .hidden {
-    display: none;
   }
   .label {
     max-height: 2rem;

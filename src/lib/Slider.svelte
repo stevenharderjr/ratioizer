@@ -38,7 +38,7 @@
     justify-content: space-between;
     padding-right: 1rem;
   }
-  .label, .value, .unit {
+  .label, .value {
     font-size: 1rem;
     font-weight: 300;
     white-space: nowrap;

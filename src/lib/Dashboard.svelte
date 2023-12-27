@@ -81,9 +81,9 @@
 
 <style>
   .ratios {
+    max-width: 100%;
     display: flex;
     flex-direction: column;
-    height: fit-content;
   }
   .button-container {
     position: absolute;

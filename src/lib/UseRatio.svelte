@@ -143,24 +143,12 @@
     flex-direction: row;
     align-items: baseline;
   }
-  .backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
   .container {
     position: relative;
     display: flex;
     flex-direction: column;
     width: 20rem;
-    max-width: 96vw;
+    max-width: 100%;
     background: #fff;
     border-radius: 8px;
     padding: 10px 14px;

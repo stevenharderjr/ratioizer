@@ -1,15 +1,12 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import selectOnFocus from '$lib/utils/selectOnFocus';
   import Toast from '../toast';
   const dispatch = createEventDispatcher();
-  export let factor = {};
-  export let parentName = '';
-  export let parentLabel = '';
-  export let edit = false;
+  export let factor: App.Factor = { label: '', value: 0, unit: 'g' };
+  export let disabled = false;
   let labelInput;
-  const initialValues = { ...factor };
-  let undo = false;
+  const initialValues = { softDelete: false, ...factor };
 
   function handleBlur({ currentTarget }) {
     const { value: inputValue, name: key } = currentTarget;
@@ -17,20 +14,18 @@
     if (defaultValue && !inputValue) currentTarget.value = defaultValue;
   }
 
+  function handleFocus({ currentTarget }) {
+    currentTarget.value = '';
+  }
+
   function handleEdits({ currentTarget: { value: inputValue, name: key } }) {
-    if (!inputValue) return;
-    const payload = { ...factor, [key]: inputValue || defaultValue, parentName };
+    if (!inputValue && inputValue !== false) return;
+    const payload = { ...factor, [key]: (inputValue || inputValue === false) ? inputValue : initialValues[key] };
     dispatch('update', payload);
   }
 
-  function handleLabelUpdate({ currentTarget: { value: inputValue }}) {
-
-  }
-
   function toggleDelete() {
-    dispatch(undo ? 'restore' : 'delete', { factor, parentName });
-    undo = !undo;
-    if (!factor.name) undo = false;
+    handleEdits({ currentTarget: { value: !factor.softDelete, name: 'softDelete' }});
   }
 
   onMount(() => {
@@ -39,20 +34,20 @@
 </script>
 
 <div class="factor">
-  <input bind:this={labelInput} name="label" class="title input" type="text" placeholder={initialValues.label || "New Factor"} value={factor.label} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleEdits} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+  <input bind:this={labelInput} name="label" class="title input" type="text" placeholder={initialValues.label || "Factor Name"} value={factor.label} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} disabled={factor.softDelete} />
   <div class="components">
-    <input name="value" class="numeric input" type="text" inputmode="numeric" placeholder={initialValues.value} value={factor.value} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleEdits
-} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
-    <input name="unit" class="unit input" type="text" placeholder={initialValues.unit} value={factor.unit} on:focus={selectOnFocus} on:blur={handleBlur} on:change={handleEdits
-} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <input name="value" class="numeric input" type="text" inputmode="numeric" placeholder={initialValues.value} value={factor.value} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} disabled={factor.softDelete} />
+    <input name="unit" class="unit input" type="text" placeholder={initialValues.unit} value={factor.unit} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} disabled={factor.softDelete} />
   </div>
-  {#if edit}
+  {#if factor.softDelete}
     <button class='button-action' on:click={toggleDelete}>
-      <img src={undo ? 'undo.svg' : 'trash-2.svg'} />
+      <img src="undo.svg" alt={'undelete ' + factor.name + ' factor'} />
     </button>
-    {#if undo}
-      <div class="strikethrough"></div>
-    {/if}
+    <div class="strikethrough"></div>
+  {:else}
+    <button class='button-action' on:click={toggleDelete}>
+      <img src="trash-2.svg" alt={'delete ' + factor.name + ' factor'} />
+    </button>
   {/if}
 </div>
 
@@ -72,17 +67,20 @@
   .components {
     display: flex;
     flex-direction: row;
-    max-width: 16rem;
+    justify-content: flex-end;
+    width: 100%;
+    flex-shrink: 2;
   }
 
   .title {
-    min-width: 50%;
-    max-width: 8rem;
+    width: 100%;
+    max-width: 20rem;
+    flex-grow: 2;
   }
 
   .numeric {
     text-align: right;
-    max-width: 3.5rem;
+    max-width: 3rem;
     margin-right: 0;
     padding-right: 0;
   }
@@ -90,6 +88,7 @@
   .numeric:focus {
     margin-right: 1px;
     padding-right: 4px;
+    padding-left: 0;
   }
 
   .unit {
