@@ -105,6 +105,7 @@
     max-width: 100%;
     display: flex;
     flex-direction: column;
+    pointer-events: auto;
   }
   .button-container {
     position: absolute;

@@ -98,6 +98,10 @@
     // restore stored values
     dispatch('close');
   }
+
+  function toggleLock() {
+    locked = !locked;
+  }
 </script>
 
 <!-- <div class="backdrop" on:click|self={close} aria-hidden={true}> -->
@@ -129,11 +133,23 @@
         ×2
       </button>
     </div>
-    <button class="x-button" on:click={close} aria-label="Close modal">
-      <svg aria-hidden="true" viewBox="0 0 2.5 2.5">
-        <path d="M0.5,0.5 L2,2 M0.5,2 L2,0.5" />
-      </svg>
-    </button>
+    <div class="options">
+      <!-- <button class="x-button" on:click={close} aria-label="Close modal">
+        <svg aria-hidden="true" viewBox="0 0 2.5 2.5">
+          <path d="M0.5,0.5 L2,2 M0.5,2 L2,0.5" />
+        </svg>
+      </button> -->
+      <button class="option-button" on:click|stopPropagation={close}>
+        <img src="x.svg" alt={`stop using ${ratio.name}`} />
+      </button>
+      <button class="option-button" on:click|stopPropagation={toggleLock} style="top:-2px;">
+        {#if locked}
+        <img src="lock.svg" alt="lock independent factors" />
+        {:else}
+        <img src="unlock.svg" alt="unlock independent factors" />
+        {/if}
+      </button>
+    </div>
   </div>
 <!-- </div> -->
 
@@ -173,7 +189,6 @@
     padding-left: 0.5rem;
   }
   .x-button {
-    position: absolute;
     width: 1.5rem;
     height: 1.5rem;
     background: transparent;
@@ -199,6 +214,34 @@
 		stroke: #666;
 	}
 
+  img {
+    height: 1.5rem;
+    width: 1.5rem;
+    display: flex;
+    opacity: 0.5;
+    border-radius: 6px;
+  }
+
+  .option-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    width: 42px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+  .options {
+    position: absolute;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    top: 0;
+    right: 0;
+    pointer-events: auto;
+  }
   .shortcuts {
     display: flex;
     flex-direction: row;
