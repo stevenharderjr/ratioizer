@@ -19,7 +19,11 @@
   export let locked = true;
   let dirty = false;
   $: image = locked ? 'lock.svg' : 'unlock.svg';
-  let factors = ratio.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
+  let factors = [...ratio.factors].sort(descendingValue);
+
+  function descendingValue({ value: a }, { value: b }) {
+    return a > b ? 1 : (a < b ? -1 : 0);
+  }
 
   function handleBlur({ currentTarget }) {
     const { value: inputValue, name: key } = currentTarget;
@@ -64,17 +68,16 @@
         factors = [...factors, { ...update, name: rename }];
       }
     }
-
-    console.log(factors);
+    return partialFactor;
   }
 
   function applyChanges() {
     const errors = [];
     const error = { duration: 5000, type: 'error' };
     let validated = true;
-    const validatedFactors = [];
+    const label = labelInput?.value || currentLabel;
 
-    if (!labelInput.value) {
+    if (!label) {
       validated = false;
       errors.push({ ...error, message: 'Ratio must be named.' });
     }
@@ -101,9 +104,7 @@
 
     if (!validated) return errors.forEach(error => Toast.add(error));
 
-    const label = labelInput.value;
-    const name = label.toLowerCase();
-    dispatch('update', { ...ratio, name, label, factors: finalFactors });
+    dispatch('update', { ...ratio, label, factors: finalFactors.sort(descendingValue) });
   }
 
   function handleDelete({ detail: { factor } }) {
@@ -139,8 +140,16 @@
 
   function addFactor() {
     // Toast.add({ message: 'Should add another factor', blur: false })
-    factors = [...factors, { label: '', value: 0, unit: 'g' }];
+    factors = [...factors, { label: '', value: 1, unit: 'g' }];
     partialFactor = true;
+  }
+
+  function handleKeyPress({ key, currentTarget }) {
+    if (key === 'esc') return toggleEdit();
+    if (key === 'Enter') {
+      if (ratio.name) return applyChanges();
+      if (factors.length < 2) addFactor();
+    }
   }
 
   onMount(() => labelInput.focus());
@@ -148,11 +157,11 @@
 
 <div class="floating ratio">
   <div class="label-bar">
-    <input bind:this={labelInput} class="label" name="label" type="text" value={ratio.label} placeholder={currentLabel} on:focus={handleFocus} on:blur={handleBlur} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <input bind:this={labelInput} class="label" name="label" type="text" value={ratio.label} placeholder={currentLabel || 'Ratio Name'} on:focus={handleFocus} on:blur={handleBlur} on:change={handleRename} on:keypress={handleKeyPress} />
   </div>
   <div class="factors">
     {#each factors as factor}
-      <EditFactor {edit} parentName={ratio.name} parentLabel={ratio.label} factor={factor} on:update={updateFactor} on:delete={handleDelete} />
+      <EditFactor {factor} on:update={updateFactor} on:delete={handleDelete} on:add={addFactor} />
     {/each}
     {#if edit && !partialFactor}
       <button class="add-factor" on:click={addFactor}>
@@ -169,7 +178,6 @@
         APPLY
       </button>
     </div>
-    <!-- <CloseButton on:click={toggleEdit} /> -->
   {/if}
   <div class="options">
     <button class="option-button" on:click|stopPropagation={toggleEdit}>

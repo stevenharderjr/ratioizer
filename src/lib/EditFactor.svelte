@@ -5,7 +5,7 @@
   const dispatch = createEventDispatcher();
   export let factor: App.Factor = { label: '', value: 0, unit: 'g' };
   export let disabled = false;
-  let labelInput;
+  let labelInput, valueInput;
   const initialValues = { softDelete: false, ...factor };
 
   function handleBlur({ currentTarget }) {
@@ -20,6 +20,7 @@
 
   function handleEdits({ currentTarget: { value: inputValue, name: key } }) {
     if (!inputValue && inputValue !== false) return;
+    if (key === 'value') inputValue = +inputValue;
     const payload = { ...factor, [key]: (inputValue || inputValue === false) ? inputValue : initialValues[key] };
     dispatch('update', payload);
   }
@@ -28,16 +29,23 @@
     handleEdits({ currentTarget: { value: !factor.softDelete, name: 'softDelete' }});
   }
 
+  function handleKeyPress({ currentTarget, key }) {
+    if (key === 'esc') currentTarget.blur();
+    if (key === 'Enter') {
+      handleEdits({ currentTarget });
+    }
+  }
+
   onMount(() => {
     if (!factor.name) labelInput.focus();
   })
 </script>
 
 <div class="factor">
-  <input bind:this={labelInput} name="label" class="title input" type="text" placeholder={initialValues.label || "Factor Name"} value={factor.label} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} disabled={factor.softDelete} />
+  <input bind:this={labelInput} name="label" class="title input" type="text" placeholder={initialValues.label || "Factor Name"} value={factor.label} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} on:keypress={handleKeyPress} disabled={factor.softDelete} />
   <div class="components">
-    <input name="value" class="numeric input" type="text" inputmode="numeric" placeholder={initialValues.value} value={factor.value} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} disabled={factor.softDelete} />
-    <input name="unit" class="unit input" type="text" placeholder={initialValues.unit} value={factor.unit} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} disabled={factor.softDelete} />
+    <input bind:this={valueInput} name="value" class="numeric input" type="text" inputmode="numeric" placeholder={initialValues.value} value={factor.value} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} on:keypress={handleKeyPress} disabled={factor.softDelete} />
+    <input name="unit" class="unit input" type="text" placeholder={initialValues.unit} value={factor.unit} on:focus={handleFocus} on:blur={handleBlur} on:change={handleEdits} on:keypress={handleKeyPress} disabled={factor.softDelete} />
   </div>
   {#if factor.softDelete}
     <button class='button-action' on:click={toggleDelete}>

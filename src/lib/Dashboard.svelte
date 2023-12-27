@@ -11,11 +11,14 @@
   let using: App.RatioFlag = undefined;
   let editing: App.RatioFlag = undefined;
   let deleting: App.RatioFlag = undefined;
-  let partialRatio = false;
+  let partialRatio: App.RatioFlag = undefined;
 
   function addRatio() {
-    Toast.add({ blur: false, message: 'Should add a new ratio', duration: 1000, dismissable: false });
-    // ratios.update(all => [newRatio, ...all]);
+    if (partialRatio) return;
+
+    partialRatio = { name: '', label: '', factors: [] };
+    $ratios = [...$ratios, partialRatio];
+    editing = partialRatio;
   }
 
   function updateFactor({ detail: { parentName, label, value, unit } }: { detail: App.Factor }) {
@@ -32,8 +35,24 @@
     using = ratio;
   }
 
-  function updateRatio({ detail: ratio }: { detail: App.Ratio }) {
-    console.log('UPDATE RATIO', ratio);
+  function updateRatio({ detail: update }: { detail: App.Ratio }) {
+      let rename = update.label!.toLowerCase();
+      if (!update.name) {
+        $ratios.pop();
+        // must be a new ratio
+        console.log('add', rename);
+        $ratios = [...$ratios, { ...update, name: rename }];
+      } else if (rename === update.name) {
+        // no name change, so just record other changes
+        console.log('update', rename);
+        $ratios = $ratios.map(ratio => (ratio.name === rename ? update : ratio));
+      } else {
+        // ratio has been renamed
+        console.log(`rename ${update.name} to ${rename}`);
+        $ratios = $ratios.map(ratio => (ratio.name === update.name ? { ...update, name: rename } : ratio));
+      }
+
+    editing = undefined;
   }
 
   function editRatio({ detail: ratio }: { detail: App.Ratio }) {
@@ -44,10 +63,12 @@
   function deleteRatio() {
     const deleteName = deleting!.name;
     $ratios = $ratios.filter(({ name }) => (name !== deleteName));
-    deleting = undefined;
+    cancel();
   }
 
   function cancel() {
+    deleting = undefined;
+    partialRatio = undefined;
     using = undefined;
     editing = undefined;
   }
