@@ -1,85 +1,53 @@
-<script>
+<script lang="ts">
   import Factor from '$lib/Factor.svelte';
   import CloseButton from '$lib/CloseButton.svelte';
+  import selectOnFocus from '$lib/utils/selectOnFocus';
   import { createEventDispatcher } from 'svelte';
-  import { editing } from '../stores';
+  import { editing, toasts, using, blur } from '../stores';
   import Toast from '../toast';
   // import '$static/lock.svg';
   // import '$static/unlock.svg';
   const dispatch = createEventDispatcher();
 
-  export let id = '';
-  export let index = -1;
-  export let name = '';
-  export let detail = {};
-  $: edit = $editing === name;
+  export let ratio: App.Ratio = { label: '', factors: [] };
+  let factors: App.Factor[] = ratio.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
 
-  export let locked = true;
-  let dirty = false;
-  $: image = locked ? 'lock.svg' : 'unlock.svg';
-  const factors = detail.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
-
-  function handleRename(e) {
-    const { value } = e.currentTarget;
-    e.currentTarget.blur();
-    console.log('Should rename "' + detail.title + '" to "' + value + '"');
+  function use() {
+    dispatch('use', ratio);
   }
 
-  function handleUpdate({ detail: { parentName, name, label, value, unit }}) {
-    const rename = label.toLowerCase();
-    console.log({ parentName, name: rename !== name ? rename : name, label, value, unit });
+  function edit() {
+    dispatch('edit', ratio);
   }
 
-  function toggleEdit() {
-    locked = true;
-    if ($editing === name) $editing = '';
-    else $editing = name;
+  function remove() {
+    // Toast.add('Should delete "' + ratio.label + '"');
+    dispatch('delete', ratio);
   }
 
-  function toggleRatioLock() {
-    locked = !locked;
-    Toast.add(`Should ${locked ? 'unlock' : 'lock'} sliders for this ratio.`);
-  }
-
-  function handleSelection() {
-    if (edit) return;
-    // console.log('selection:', detail)
-    dispatch('use', { ...detail, name })
+  function handleKeyPress(event) {
+    const { key } = event;
+    if (key === 'Space' || key === 'Enter') use();
   }
 </script>
 
-<div class="floating ratio" on:click={handleSelection} aria-hidden="true">
+<div class="floating ratio" on:click={use} tabindex=0 role="button" on:keypress={handleKeyPress}>
   <div class="label-bar">
-    <input class="title" name="title" type="text" value={detail.label} on:change={handleRename} style={edit ? 'pointer-events:auto' : 'pointer-events:none'} />
+    <span class="label">{ratio.label}</span>
   </div>
   <div class="factors">
-    {#each factors as factor, i}
-      <Factor {edit} {index} id={detail.label + ' ' + id} parentName={name} parentLabel={detail.label} factor={factor} on:update={handleUpdate} />
+    {#each factors as factor}
+      <Factor parentName={ratio.name} parentLabel={ratio.label} factor={factor} />
     {/each}
   </div>
-  {#if edit}
-    <button class="edit-action add-factor">
-      + New Factor
-    </button>
-    <div class="edit-actions">
-      <button class="edit-action">
-        CANCEL
-      </button>
-      <button class="edit-action">
-        APPLY
-      </button>
-    </div>
-    <!-- <CloseButton on:click={toggleEdit} /> -->
-  {/if}
+
   <div class="options">
-    <button class="edit-button" on:click|stopPropagation={toggleEdit}>
-      <img src={edit ? "cancel.svg" : "edit.svg"} />
+    <button class="option-button" on:click|stopPropagation={edit}>
+      <img src="edit.svg" alt={'edit ' + ratio.name}/>
     </button>
-    {#if !edit}
-    <button class="edit-button" on:click|stopPropagation={toggleRatioLock}>
-      <img src={locked ? 'unlock.svg' : 'lock.svg'} />
+    <button class="option-button" on:click|stopPropagation={remove} style="margin-top:-2px;">
+      <img src="trash-2.svg" alt={'delete ' + ratio.name} />
     </button>
-    {/if}
   </div>
 </div>
 
@@ -94,17 +62,9 @@
     margin-bottom: 1rem;
     background: #fff;
     width: 20rem;
-    max-width: 92vw;
-    padding: 0.25rem;
-  }
-  input {
-    font-size: 1.25rem;
-    font-weight: 500;
-    flex: 1;
-    max-width: 12rem;
-  }
-  input:focus {
-    padding: 4px 8px;
+    max-width: 100%;
+    padding: 10px 14px;
+    cursor: pointer;
   }
   img {
     height: 1.5rem;
@@ -114,22 +74,25 @@
     border-radius: 6px;
     /* margin: 0.5rem 0.5rem 0 0; */
   }
-  .edit-button {
+  .option-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 2rem;
-    width: 2rem;
+    height: 42px;
+    width: 42px;
     border: none;
     background: transparent;
+    cursor: pointer;
   }
   .factors {
-    margin: 0 1rem 1rem 0;
-    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    padding: 1rem 0.5rem 1rem 0.5rem;
     width: 100%;
-  }
-  .disabled {
-    pointer-events: none;
+    max-width: 15.9rem;
+    gap: 0.5rem;
+    /* background: #f006; */
   }
   .label-bar {
     position: relative;
@@ -141,52 +104,17 @@
   .options {
     position: absolute;
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     align-items: center;
-    top: 8px;
-    right: 3px;
-    width: 42px;
+    top: 0;
+    right: 0;
     pointer-events: auto;
   }
-  .hidden {
-    display: none;
-  }
-  .title {
+  .label {
     max-height: 2rem;
-  }
-
-  .edit-actions {
-    display: flex;
-    flex-direction: column;
-    align-self: flex-end;
-    gap: 0.5rem;
-    padding: 0 0.5rem 0.5rem;
-    width: 100%;
-  }
-
-  .edit-action {
-    padding: 0.5rem 1rem;
-    background: #666;
-    color: #fff;
-    font-size: 1rem;
-    border: none;
-    border-radius: 4px;
-    background: #0000;
-    width: 100%;
+    font-size: 1.25rem;
+    font-weight: 500;
     flex: 1;
-    font-size: small;
-    font-weight: 300;
   }
 
-  .add-factor {
-    position: relative;
-    top: -8px;
-    background: #fff;
-    /* box-shadow: 8px 2px 8px #000; */
-    border: none;
-    border-radius: 6px;
-    min-width: 7rem;
-    height: 1rem;
-    margin-bottom: 1rem;
-  }
 </style>

@@ -6,6 +6,24 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface Platform {}
+		interface Factor {
+			name?: string;
+			label: string;
+			value: number;
+			unit: string | 'g';
+			parentName?: string;
+			parentLabel?: string;
+			softDelete?: boolean;
+		}
+
+		interface Ratio {
+			name?: string;
+			label?: string;
+			factors: Factor[] | [];
+		}
+
+		type RatioFlag = Ratio | undefined;
+		type FactorFlag = Factor | undefined;
 	}
 }
 

@@ -1,18 +1,18 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import Slider from '$lib/Slider.svelte';
 	import Factor from './Factor.svelte';
   import Fraction from '$lib/Fraction.svelte';
   const dispatch = createEventDispatcher();
 
-  export let ratio = {};
-  let factors = [];
-  let relativeRange = [];
-  let lowFactor, highFactor, floorName, floorValue, maxName, maxValue;
+  export let ratio = { label: '', factors: [] };
+  let factors: App.Factor[] = [];
+  let relativeRange = [0.125, 1.985];
+  let lowFactor, highFactor, floorName: string, floorValue: number, maxName: string, maxValue: number;
   let total = 0;
   let locked = true;
   $: totalFactor = { value: total };
-  let valueMap = new Map(ratio.factors.map((factor) => {
+  let valueMap: Map<string, number> = new Map(ratio.factors.map((factor) => {
       const { name, value } = factor;
       factors.push(factor)
       total += +value;
@@ -27,30 +27,30 @@
       }
       return [name, value];
     }));
-  updateRange(floorValue);
+  updateRange(floorValue!);
 
-  function updateRange(floor) {
-    const staticFloor = valueMap.get(floorName);
+  function updateRange(floor: number) {
+    const staticFloor = valueMap.get(floorName) as number;
     const conversion = floor / staticFloor;
-    relativeRange = [(conversion * 0.125).toPrecision(3), (conversion * 1.875).toPrecision(3)];
+    relativeRange = [+(conversion * 0.125).toPrecision(3), +(conversion * 1.875).toPrecision(3)];
   }
 
-  function updateValues({ name, value: targetValue }) {
-    const conversionRate = targetValue / valueMap.get(name);
-    let min, max, sum = 0;
+  function updateValues({ name, value: targetValue }: { name: string, value: number }) {
+    const conversionRate = targetValue / (valueMap.get(name) as number);
+    let min: number, max: number, sum = 0;
     const refactor = factors.map((factor, i) => {
       const { name: factorName, value: currentValue } = factor;
-      const staticFactor = ratio.factors[i];
+      const staticFactor: App.Factor = ratio.factors[i];
       const value = Math.round(staticFactor.value * conversionRate);
       sum += value;
       if (!min || value < min) min = value;
       if (!max || value > max) max = value;
       return { ...staticFactor, value };
     });
-    if (min < 1) return;
+    if (min! < 1) return;
     factors = refactor;
-    floorValue = Math.round(min);
-    maxValue = max;
+    floorValue = Math.round(min!);
+    maxValue = max!;
     total = sum;
   }
 
@@ -62,8 +62,8 @@
       sum += value;
       return { ...factor, value };
     });
-    floorValue = valueMap.get(floorName);
-    maxValue = valueMap.get(maxName);
+    floorValue = valueMap.get(floorName) as number;
+    maxValue = valueMap.get(maxName)as number;
     total = sum;
     updateRange(floorValue);
   }
@@ -78,25 +78,6 @@
     floorValue = value;
 
     updateValues({ name: floorName, value });
-
-    // let min, sum = 0;
-    // const refactor = factors.map((factor, i) => {
-    //   const { name, value: currentValue } = factor;
-    //   const value = currentValue * 0.5;
-    //   sum += value;
-    //   if (name === floorName) min = value;
-    //   if (name === maxName) maxValue = value;
-    //   return { ...factor, value };
-    // });
-    // // ignore shortcut for lowest common denominator
-    // console.log({ min });
-    // if (min < 1) return;
-    // factors = refactor;
-    // total = sum;
-    // const conversion = min / floorValue;
-    // console.log({ conversion });
-    // rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
-    // console.log(rangeMultipliers);
   }
 
   function double() {
@@ -107,18 +88,6 @@
     floorValue = value;
 
     updateValues({ name: floorName, value });
-    // let min, sum = 0;
-    // factors = factors.map((factor, i) => {
-    //   const { name, value: currentValue } = factor;
-    //   const value = Math.round(currentValue * 2);
-    //   sum += value;
-    //   if (name === floorName) min = value;
-    //   if (name === maxName) maxValue = value;
-    //   return { ...factor, value };
-    // });
-    // total = sum;
-    // const conversion = min / floorValue;
-    // rangeMultipliers = [(conversion * 0.25).toPrecision(3), (conversion * 1.75).toPrecision(3)];
   }
 
   function handleSliderInput({ detail }) {
@@ -129,9 +98,13 @@
     // restore stored values
     dispatch('close');
   }
+
+  function toggleLock() {
+    locked = !locked;
+  }
 </script>
 
-<div class="backdrop" on:click|self={close} aria-hidden={true}>
+<!-- <div class="backdrop" on:click|self={close} aria-hidden={true}> -->
   <div class="floating container">
     <div class="title-bar">
       <h2>{ratio.label} <span>({Math.round(total)} g)</span></h2>
@@ -156,17 +129,29 @@
       <button class="shortcut" on:click={resetValues} style="font-size:small;flex:2;">
         RESET
       </button>
-      <button class="shortcut" on:click={double}>
+      <button class="shortcut" on:click={double} style="font-size:small;">
         ×2
       </button>
     </div>
-    <button class="x-button" on:click={close} aria-label="Close modal">
-      <svg aria-hidden="true" viewBox="0 0 2.5 2.5">
-        <path d="M0.5,0.5 L2,2 M0.5,2 L2,0.5" />
-      </svg>
-    </button>
+    <div class="options">
+      <!-- <button class="x-button" on:click={close} aria-label="Close modal">
+        <svg aria-hidden="true" viewBox="0 0 2.5 2.5">
+          <path d="M0.5,0.5 L2,2 M0.5,2 L2,0.5" />
+        </svg>
+      </button> -->
+      <button class="option-button" on:click|stopPropagation={close}>
+        <img src="x.svg" alt={`stop using ${ratio.name}`} />
+      </button>
+      <button class="option-button" on:click|stopPropagation={toggleLock} style="top:-2px;">
+        {#if locked}
+        <img src="lock.svg" alt="lock independent factors" />
+        {:else}
+        <img src="unlock.svg" alt="unlock independent factors" />
+        {/if}
+      </button>
+    </div>
   </div>
-</div>
+<!-- </div> -->
 
 <style>
   h2 {
@@ -174,30 +159,22 @@
     flex-direction: row;
     align-items: baseline;
   }
-  .backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
   .container {
     position: relative;
     display: flex;
     flex-direction: column;
     width: 20rem;
-    max-width: 96vw;
+    max-width: 100%;
     background: #fff;
     border-radius: 8px;
-    padding: 0.75rem 1rem 0.75rem;
+    padding: 10px 14px;
+    margin-bottom: 1rem;
   }
   .factors {
-    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
   }
   .title-bar {
     position: relative;
@@ -212,7 +189,6 @@
     padding-left: 0.5rem;
   }
   .x-button {
-    position: absolute;
     width: 1.5rem;
     height: 1.5rem;
     background: transparent;
@@ -224,6 +200,7 @@
     pointer-events: auto;
     top: 0.5rem;
     right: 0.5rem;
+    cursor: pointer;
   }
 
   svg {
@@ -237,6 +214,34 @@
 		stroke: #666;
 	}
 
+  img {
+    height: 1.5rem;
+    width: 1.5rem;
+    display: flex;
+    opacity: 0.5;
+    border-radius: 6px;
+  }
+
+  .option-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    width: 42px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+  .options {
+    position: absolute;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    top: 0;
+    right: 0;
+    pointer-events: auto;
+  }
   .shortcuts {
     display: flex;
     flex-direction: row;

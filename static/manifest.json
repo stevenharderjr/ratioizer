@@ -1,0 +1,119 @@
+{
+	"name": "Ratioizer",
+	"short_name": "Ratioizer",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
+	"icons": [
+		{
+			"src": "/favicon.png",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "cancel.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "edit1.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "lock.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "refresh.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "trash-2.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "undo.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "x-circle.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "check-circle.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "edit2.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "lock2.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "save.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "trash.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "unlock.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "x.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "edit.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "favicon.png",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "trash2.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "unlock2.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		}
+	],
+	"screenshots": [
+		{
+			"src": "screenshot-p.png",
+			"sizes": "1080x2339",
+			"type": "image/png"
+		},
+		{
+			"src": "screenshot-w.png",
+			"sizes": "1728x1080",
+			"type": "image/png",
+			"form_factor": "wide"
+		}
+	]
+}

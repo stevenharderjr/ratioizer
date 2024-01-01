@@ -14,12 +14,12 @@ class Toaster {
 			type: 'info',
 			blur: true,
 			dismissable: true,
-			duration: 3000,
+			duration: 2000,
 			dismiss: () => this.dismiss(id)
 		};
 
 		const t = { ...defaults, ...options };
-		toasts.update((all) => [...all, t]);
+		toasts.update((all) => (options.replace ? [t] : [...all, t]));
 
 		if (t.duration) t.timeout = setTimeout(t.dismiss, t.duration);
 

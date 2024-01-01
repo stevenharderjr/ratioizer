@@ -1,23 +1,96 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import Confirm from '$lib/Confirm.svelte';
   import Ratio from '$lib/Ratio.svelte';
-  import { ratios } from '../stores.ts'
+  import EditRatio from '$lib/EditRatio.svelte';
+  import UseRatio from '$lib/UseRatio.svelte';
+  import { ratios } from '../stores'
   import Toast from '../toast';
   const dispatch = createEventDispatcher();
 
+  let using: App.RatioFlag = undefined;
+  let editing: App.RatioFlag = undefined;
+  let deleting: App.RatioFlag = undefined;
+  let partialRatio: App.RatioFlag = undefined;
+
   function addRatio() {
-    Toast.add({ blur: false, message: 'Should add a new ratio', duration: 1000, dismissable: false });
-    // ratios.update(all => [newRatio, ...all]);
+    if (partialRatio) return;
+
+    partialRatio = { name: '', label: '', factors: [] };
+    $ratios = [...$ratios, partialRatio];
+    editing = partialRatio;
   }
+
+  function updateFactor({ detail: { parentName, label, value, unit } }: { detail: App.Factor }) {
+    const name = label.toLowerCase();
+
+  }
+
+  function awaitConfirmation({ detail: ratio }: { detail: App.Ratio }) {
+    deleting = ratio;
+  }
+
+  function useRatio({ detail: ratio }: { detail: App.Ratio }) {
+    editing = undefined;
+    using = ratio;
+  }
+
+  function updateRatio({ detail: update }: { detail: App.Ratio }) {
+      let rename = update.label!.toLowerCase();
+      if (!update.name) {
+        $ratios.pop();
+        // must be a new ratio
+        console.log('add', rename);
+        $ratios = [...$ratios, { ...update, name: rename }];
+      } else if (rename === update.name) {
+        // no name change, so just record other changes
+        console.log('update', rename);
+        $ratios = $ratios.map(ratio => (ratio.name === rename ? update : ratio));
+      } else {
+        // ratio has been renamed
+        console.log(`rename ${update.name} to ${rename}`);
+        $ratios = $ratios.map(ratio => (ratio.name === update.name ? { ...update, name: rename } : ratio));
+      }
+
+    editing = undefined;
+  }
+
+  function editRatio({ detail: ratio }: { detail: App.Ratio }) {
+    using = undefined;
+    editing = ratio;
+  }
+
+  function deleteRatio() {
+    const deleteName = deleting!.name;
+    $ratios = $ratios.filter(({ name }) => (name !== deleteName));
+    cancel();
+  }
+
+  function cancel() {
+    deleting = undefined;
+    partialRatio = undefined;
+    using = undefined;
+    editing = undefined;
+  }
+
 
 </script>
 
 <div class="ratios">
-  {#each Object.keys($ratios) as key, i}
-    <Ratio index={i} name={key} detail={$ratios[key]} on:use />
-  {/each}
-
+  {#each $ratios as ratio}
+    {#if using?.name === ratio.name}
+      <UseRatio {ratio} on:close={cancel} />
+    {:else if editing?.name === ratio.name}
+      <EditRatio {ratio} on:update={updateRatio} on:close={cancel} />
+    {:else}
+      <Ratio {ratio} on:use={useRatio} on:edit={editRatio} on:delete={awaitConfirmation} />
+    {/if}
+    {/each}
 </div>
+
+{#if deleting}
+  <Confirm question={`Delete "${deleting.label}"?`} on:confirm={deleteRatio} on:reject={() => (deleting = undefined)} />
+{/if}
 
 <div class="button-container">
   <button on:click={addRatio} aria-label="Add new ratio.">
@@ -29,9 +102,10 @@
 
 <style>
   .ratios {
+    max-width: 100%;
     display: flex;
     flex-direction: column;
-    height: fit-content;
+    pointer-events: auto;
   }
   .button-container {
     position: absolute;
@@ -40,6 +114,7 @@
     bottom: 1.5rem;
     pointer-events: none;
     width: 100%;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   button {
     border-radius: 9999px;
