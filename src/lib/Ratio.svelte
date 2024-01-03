@@ -48,7 +48,7 @@
 	<div class="options">
 		<button
 			class="option-button"
-			on:click|stopPropagation={edit}
+			on:click={edit}
 			title={'edit "' + ratio.name + '"'}
 		>
 			<img src="edit.svg" alt="pen on paper" />

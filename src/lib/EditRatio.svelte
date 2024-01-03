@@ -200,16 +200,16 @@
 	</div>
 	{#if edit}
 		<div class="edit-actions">
-			<button class="edit-action" on:click|stopPropagation={selfDestruct} title="delete this ratio">
+			<button class="edit-action" on:click={selfDestruct} title="delete this ratio">
 				<img src="trash-2.svg" alt="trashcan" />
 			</button>
-			<button class="edit-action" on:click|stopPropagation={handleReset} title="reset changes">
+			<button class="edit-action" on:click={handleReset} title="reset changes">
 				<img src="rotate-ccw.svg" alt="arrow rotating counter-clockwise" style="margin-left:2px;" />
 			</button>
 			<!-- <button class="edit-action" on:click|stopPropagation={toggleEdit}> CANCEL </button> -->
 			<button
 				class="save-action"
-				on:click|stopPropagation={applyChanges}
+				on:click={applyChanges}
 				title="save updates and return to overview"
 			>
 				<img class="save-icon" src="check-circle.svg" alt="check-circle" />
@@ -220,7 +220,7 @@
 	<div class="options">
 		<button
 			class="option-button"
-			on:click|stopPropagation={handleClose}
+			on:click={handleClose}
 			title="discard all changes and return to overview"
 		>
 			<img src="x.svg" alt="x" />
@@ -290,6 +290,7 @@
 		top: 0;
 		right: 0;
 		pointer-events: auto;
+    margin: 1px;
 	}
 	.label {
 		max-height: 2rem;
@@ -340,7 +341,7 @@
 		background: transparent;
 		border: 2px solid #333;
 		border-radius: 4px;
-		opacity: 0.5;
+		opacity: 0.7;
 	}
 
 	.add-factor {

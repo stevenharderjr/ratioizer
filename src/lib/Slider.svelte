@@ -36,7 +36,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-right: 1rem;
+    /* padding-right: 1rem; */
   }
   .label, .value {
     font-size: 1rem;
@@ -54,9 +54,11 @@
     color: #999;
   }
 
-  input {
+  .slider {
+    position: relative;
+    /* margin-right: 10rem; */
     width: 100%;
-    margin-bottom: 1.5rem;
-  }
+    height: 1rem;
+    margin-bottom: 1.5rem;  }
 
 </style>
