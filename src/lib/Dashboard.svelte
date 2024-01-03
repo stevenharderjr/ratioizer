@@ -24,7 +24,8 @@
 
   function awaitConfirmation({ detail: ratio }: { detail: App.Ratio }) {
     deleting = ratio;
-    deleteRatio();
+    const factorCount = ratio.factors.length;
+    if (factorCount < 2) deleteRatio();
   }
 
   function useRatio({ detail: ratio }: { detail: App.Ratio }) {
@@ -67,10 +68,12 @@
   }
 
   function cancel() {
-    const factorCount = partialRatio?.factors?.length;
-    if (!factorCount || factorCount < 2) {
-      deleting = partialRatio;
-      return deleteRatio();
+    if (editing) {
+      const factorCount = editing.factors.length;
+      if (factorCount < 2) {
+        deleting = partialRatio;
+        return deleteRatio();
+      }
     }
     deleting = undefined;
     partialRatio = undefined;
