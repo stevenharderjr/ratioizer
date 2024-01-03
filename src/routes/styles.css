@@ -6,6 +6,14 @@ h2 {
 	font-size: 1.25rem;
 }
 
+img {
+	-webkit-user-drag: none;
+	-khtml-user-drag: none;
+	-moz-user-drag: none;
+	-o-user-drag: none;
+	user-drag: none;
+}
+
 p,
 span,
 a,

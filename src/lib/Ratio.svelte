@@ -1,120 +1,124 @@
 <script lang="ts">
-  import Factor from '$lib/Factor.svelte';
-  import CloseButton from '$lib/CloseButton.svelte';
-  import selectOnFocus from '$lib/utils/selectOnFocus';
-  import { createEventDispatcher } from 'svelte';
-  import { editing, toasts, using, blur } from '../stores';
-  import Toast from '../toast';
-  // import '$static/lock.svg';
-  // import '$static/unlock.svg';
-  const dispatch = createEventDispatcher();
+	import Factor from '$lib/Factor.svelte';
+	import CloseButton from '$lib/CloseButton.svelte';
+	import selectOnFocus from '$lib/utils/selectOnFocus';
+	import { createEventDispatcher } from 'svelte';
+	import { editing, toasts, using, blur } from '../stores';
+	import Toast from '../toast';
+	// import '$static/lock.svg';
+	// import '$static/unlock.svg';
+	const dispatch = createEventDispatcher();
 
-  export let ratio: App.Ratio = { label: '', factors: [] };
-  let factors: App.Factor[] = ratio.factors.sort(({ value: a }, { value: b }) => (a > b ? -1 : (a < b ? 1 : 0)));
+	export let ratio: App.Ratio = { label: '', factors: [] };
+	let factors: App.Factor[] = ratio.factors.sort(({ value: a }, { value: b }) =>
+		a > b ? -1 : a < b ? 1 : 0
+	);
 
-  function use() {
-    dispatch('use', ratio);
-  }
+	function use() {
+		dispatch('use', ratio);
+	}
 
-  function edit() {
-    dispatch('edit', ratio);
-  }
+	function edit() {
+		dispatch('edit', ratio);
+	}
 
-  function remove() {
-    // Toast.add('Should delete "' + ratio.label + '"');
-    dispatch('delete', ratio);
-  }
-
-  function handleKeyPress(event) {
-    const { key } = event;
-    if (key === 'Space' || key === 'Enter') use();
-  }
+	function handleKeyPress(event) {
+		const { key } = event;
+		if (key === 'Space' || key === 'Enter') use();
+	}
 </script>
 
-<div class="floating ratio" on:click={use} tabindex=0 role="button" on:keypress={handleKeyPress}>
-  <div class="label-bar">
-    <span class="label">{ratio.label}</span>
-  </div>
-  <div class="factors">
-    {#each factors as factor}
-      <Factor parentName={ratio.name} parentLabel={ratio.label} factor={factor} />
-    {/each}
-  </div>
+<div
+	class="floating ratio"
+	on:click={use}
+	tabindex="0"
+	role="button"
+	on:keypress={handleKeyPress}
+	title={'use "' + ratio.name + '"'}
+>
+	<div class="label-bar">
+		<span class="label">{ratio.label}</span>
+	</div>
+	<div class="factors">
+		{#each factors as factor}
+			<Factor {factor} />
+		{/each}
+	</div>
 
-  <div class="options">
-    <button class="option-button" on:click|stopPropagation={edit}>
-      <img src="edit.svg" alt={'edit ' + ratio.name}/>
-    </button>
-    <button class="option-button" on:click|stopPropagation={remove} style="margin-top:-2px;">
-      <img src="trash-2.svg" alt={'delete ' + ratio.name} />
-    </button>
-  </div>
+	<div class="options">
+		<button
+			class="option-button"
+			on:click|stopPropagation={edit}
+			title={'edit "' + ratio.name + '"'}
+		>
+			<img src="edit.svg" alt="pen on paper" />
+		</button>
+	</div>
 </div>
 
 <style>
-  .ratio {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    background: #fff;
-    width: 20rem;
-    max-width: 100%;
-    padding: 10px 14px;
-    cursor: pointer;
-  }
-  img {
-    height: 1.5rem;
-    width: 1.5rem;
-    display: flex;
-    opacity: 0.5;
-    border-radius: 6px;
-    /* margin: 0.5rem 0.5rem 0 0; */
-  }
-  .option-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    width: 42px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-  }
-  .factors {
-    display: flex;
-    flex-direction: column;
-    align-self: flex-start;
-    padding: 1rem 0.5rem 1rem 0.5rem;
-    width: 100%;
-    max-width: 15.9rem;
-    gap: 0.5rem;
-    /* background: #f006; */
-  }
-  .label-bar {
-    position: relative;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-  .options {
-    position: absolute;
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: center;
-    top: 0;
-    right: 0;
-    pointer-events: auto;
-  }
-  .label {
-    max-height: 2rem;
-    font-size: 1.25rem;
-    font-weight: 500;
-    flex: 1;
-  }
-
+	.ratio {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		align-items: center;
+		border-radius: 8px;
+		margin-bottom: 1rem;
+		background: #fff;
+		width: 20rem;
+		max-width: 100%;
+		padding: 10px 14px;
+		cursor: pointer;
+	}
+	img {
+		height: 1.5rem;
+		width: 1.5rem;
+		display: flex;
+		opacity: 0.5;
+		border-radius: 6px;
+		/* margin: 0.5rem 0.5rem 0 0; */
+	}
+	.option-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 42px;
+		width: 42px;
+		border: none;
+		background: transparent;
+		cursor: pointer;
+	}
+	.factors {
+		display: flex;
+		flex-direction: column;
+		align-self: flex-start;
+		padding: 1rem 0.5rem 1rem 0.5rem;
+		width: 100%;
+		max-width: 15.9rem;
+		gap: 0.5rem;
+		/* background: #f006; */
+	}
+	.label-bar {
+		position: relative;
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	.options {
+		position: absolute;
+		display: flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		top: 0;
+		right: 0;
+		pointer-events: auto;
+	}
+	.label {
+		max-height: 2rem;
+		font-size: 1.25rem;
+		font-weight: 500;
+		flex: 1;
+	}
 </style>
