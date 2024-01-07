@@ -1,6 +1,6 @@
 # Ratioizer
 
-### Define sets of values that can be dynamically adjusted without changing the proportions between them.
+### Keep sets of values and allow dynamic adjustments without changing proportions between them.
 
 For example, my nominal cup of coffee comprises 20g sugar, 200ml coffee, and 150ml half & half.
 
