@@ -1,17 +1,28 @@
 # Ratioizer
 
-### PWA for defining and working with ratios
+### Define sets of values that can be dynamically adjusted without changing the proportions between them.
 
-I wanted an easy way to preserve ratios between values while changing any of the values involved. Specifically, a way to achieve a consistent coffee flavor when I am short on half & half. This involves setting up an ideal ratio between cream, sugar and coffee, then preserving that ratio when the amount of any of those ingredients fluctuates.
+For example, my nominal cup of coffee comprises 20g sugar, 200ml coffee, and 150ml half & half.
 
-## Example
+### Problem 1
+If I'm short on half & half, I need the ratio between the available amount (128 ml) and the nominal amount (150 ml).
 
-My nominal cup of coffee comprises 21g sugar, 197ml coffee, and 169ml half & half, but I want the coffee to taste the same when I have less than 169ml of half & half.
+* R = 128/150 **(~0.85)**
 
-This can be achieved by converting the nominal amounts of coffee and sugar to ratios based on the nominal amount of half & half (197/169 and 21/169), then multiplying those ratios by the available amount of half & half (let's say 100ml).
+* **~170 ml Coffee**  (200\*R)
 
-197 / 169 \* 100 = ~117ml coffee
+* **~17 g Sugar** (20\*R)
 
-21 / 169 \* 100 = ~12g sugar
+### Problem 2
+If I want to fill a larger cup, I need the ratio between the capacity of the cup (440 ml) and the sum of the nominal values (370 ml).
 
-It's a straightforward exercise with a calculator, but it's still a lot of data entry. Instead, I would like to edit one of the ideal values and see the others adjust accordingly.
+R = 370/440 **(~1.19)**
+
+* **~238 ml Coffee** (200*R)
+
+* **~178 ml Half & Half** (150*R)
+
+* **~24 g Sugar** (20*R)
+
+The solutions are fairly straightforward, but they involve time, attention, and data entry each time a problem arises.
+It's much more convenient to be able to adjust one nominal value and have the others update accordingly.
