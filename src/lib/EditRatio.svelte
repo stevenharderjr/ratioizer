@@ -3,19 +3,19 @@
 	import CloseButton from '$lib/CloseButton.svelte';
 	import selectOnFocus from '$lib/utils/selectOnFocus';
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { editing, toasts, using } from '../stores';
+	import { editing, toasts, using, newFactor } from '../stores';
 	import Toast from '../toast';
 	import Factor from './Factor.svelte';
 	// import '$static/lock.svg';
 	// import '$static/unlock.svg';
 	const dispatch = createEventDispatcher();
 
-	export let ratio: App.Ratio = { label: '', factors: [] };
+	export let ratio: App.Ratio;
 	export let edit = true;
 	const { name } = ratio;
 	const initialRatio = { ...ratio };
 	const initialFactors = [...ratio.factors];
-	let partialFactor = false;
+	let partialFactor: App.FactorFlag;
 	let currentLabel = ratio.label;
 	let labelInput;
 
@@ -153,8 +153,8 @@
 
 	function addFactor() {
 		// Toast.add({ message: 'Should add another factor', blur: false })
-		factors = [...factors, { label: '', value: 1, unit: 'g' }];
-		partialFactor = true;
+    partialFactor = newFactor();
+		factors = [...factors, partialFactor];
 	}
 
 	function handleKeyPress({ key, currentTarget }) {

@@ -4,7 +4,7 @@
 	import Ratio from '$lib/Ratio.svelte';
 	import EditRatio from '$lib/EditRatio.svelte';
 	import UseRatio from '$lib/UseRatio.svelte';
-	import { ratios } from '../stores';
+	import { ratios, newRatio } from '../stores';
 	import Toast from '../toast';
 	const dispatch = createEventDispatcher();
 
@@ -16,18 +16,17 @@
 	console.log(crypto);
 
 	function addRatio() {
-		if (partialRatio) return;
+		if (editing) return;
 
-		partialRatio = { name: '', label: '', factors: [] };
-		$ratios = [...$ratios, partialRatio];
-		editing = partialRatio;
+		editing = newRatio();
+		$ratios = [...$ratios, editing];
 	}
 
 	function updateFactor({ detail: { parentName, label, value, unit } }: { detail: App.Factor }) {
 		const name = label.toLowerCase();
 	}
 
-	function awaitConfirmation({ detail: ratio }: { detail: App.Ratio }) {
+	function getConfirmation({ detail: ratio }: { detail: App.Ratio }) {
 		deleting = ratio;
 	}
 
@@ -59,12 +58,13 @@
 	}
 
 	function resetRatio({ detail: initialRatio }: { detail: App.Ratio }) {
-		console.log('should reset', initialRatio.name);
+    const { id: resetId } = editing;
+		$ratios = $ratios.map(ratio => (ratio.id === resetId ? editing : ratio));
 	}
 
 	function editRatio({ detail: ratio }: { detail: App.Ratio }) {
 		using = undefined;
-		editing = ratio;
+		editing = { ...ratio };
 	}
 
 	function deleteRatio() {
@@ -91,7 +91,7 @@
 				on:update={updateRatio}
 				on:close={cancel}
 				on:reset={resetRatio}
-				on:delete={awaitConfirmation}
+				on:delete={getConfirmation}
 			/>
 		{:else}
 			<Ratio {ratio} on:use={useRatio} on:edit={editRatio} />
